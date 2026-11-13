@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Database — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="foods">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Nutrition · Food database</div>
+        <h1 class="headline-lg">Indian foods, fruits &amp; vegetables</h1>
+        <p class="body">Reference nutrition values per 100 g (standard values). Use the grams field to calculate nutrients per gram or any custom amount. Includes Indian dishes, fruits, vegetables, grains &amp; pulses, dairy/protein foods, and nuts/seeds.</p>
+      </div>
+      <span class="chip" id="food-count">—</span>
+    </div>
+
+    <section class="module">
+      <div class="module-head">
+        <div>
+          <h2>Browse &amp; calculate per grams</h2>
+          <p>Search, filter by category, and set grams to see calculated values</p>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:16px">
+        <div class="field">
+          <label class="field-label" for="food-search">Search food</label>
+          <input id="food-search" class="input" type="text" placeholder="e.g. roti, banana, dal, paneer" />
+        </div>
+        <div class="field">
+          <label class="field-label" for="food-category">Category</label>
+          <select id="food-category" class="select"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="food-grams">Amount (grams)</label>
+          <input id="food-grams" class="input" type="number" min="1" step="1" value="100" />
+          <div class="mono tiny" style="margin-top:6px;color:var(--primary-60)">Tip: for items like eggs/roti/fruits, cards show typical piece weight (e.g. 1 egg ≈ 50 g).</div>
+        </div>
+      </div>
+
+      <div class="notice" style="margin-bottom:16px">
+        <div>
+          <strong>About these values</strong>
+          Values shown are standard reference nutrition values per 100 g (and calculated per your selected grams). Actual values vary by recipe, ingredients, brand, ripeness and cooking method. Use for planning and estimation.
+        </div>
+      </div>
+
+      <div id="food-list" class="stack"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/nutrition-data.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

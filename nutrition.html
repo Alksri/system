@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meal Calculator — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="nutrition">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Nutrition · Meal calculator</div>
+        <h1 class="headline-lg">Build a meal &amp; calculate nutrition</h1>
+        <p class="body">Tell us what you are going to make, add the ingredients/items with their quantities, and get total calories, protein, carbs, fat, vitamins and minerals calculated from the food database.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>What are you making?</h2>
+            <p>Name your dish/meal and add ingredients</p>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field">
+            <label class="field-label" for="meal-name">Dish / meal name</label>
+            <input id="meal-name" class="input" type="text" placeholder="e.g. Paneer salad, Post-workout meal, Dal rice bowl" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="meal-search">Search ingredient (from database)</label>
+            <input id="meal-search" class="input" type="text" placeholder="Search Indian dishes, fruits, vegetables…" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="meal-item">Select item to add</label>
+            <select id="meal-item" class="select"></select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="meal-grams" id="meal-qty-label">Quantity (grams)</label>
+            <input id="meal-grams" class="input" type="number" min="1" step="1" placeholder="e.g. 150" />
+            <div class="mono tiny" id="meal-qty-hint" style="margin-top:6px;color:var(--primary-60)">Enter weight in grams. For countable items (eggs, roti, fruits) you can enter pieces.</div>
+          </div>
+          <div class="flex gap-xs wrap">
+            <button id="meal-add" class="btn btn-sm" type="button">Add ingredient</button>
+            <button id="meal-clear" class="btn btn-ghost btn-sm" type="button">Clear all</button>
+          </div>
+        </div>
+
+        <div class="card-plain mt-sm">
+          <div class="label-sm" style="color:var(--primary-60);margin-bottom:6px">How it works</div>
+          <p class="body-sm">Pick items from the same database as the Food page (Indian dishes, fruits, vegetables, pulses, dairy, nuts etc.). Countable items (e.g. eggs, roti, idli, fruits) can be added piece-wise (2 eggs, 3 rotis) and are converted using standard piece weights; all totals are calculated from per-100 g reference values.</p>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Ingredients added</h2>
+            <p>Your current meal composition</p>
+          </div>
+        </div>
+        <div id="meal-rows" class="stack"></div>
+      </section>
+    </div>
+
+    <section class="module mt-md">
+      <div class="module-head">
+        <div>
+          <h2>Nutrition result (total)</h2>
+          <p>Calculated from all added ingredients</p>
+        </div>
+      </div>
+      <div id="meal-totals" class="stats"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/nutrition-data.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

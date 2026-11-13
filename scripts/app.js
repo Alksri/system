@@ -390,6 +390,11 @@
       { label: 'Advisor', href: 'advisor.html', page: 'advisor' },
       { label: 'Progress', href: 'progress.html', page: 'progress' },
       { label: 'Inventory', href: 'inventory.html', page: 'inventory' }
+    ] },
+    { label: 'Nutrition', dropdown: [
+      { label: 'BMI & Diet Plan', href: 'diet.html', page: 'diet' },
+      { label: 'Food Database', href: 'foods.html', page: 'foods' },
+      { label: 'Meal Calculator', href: 'nutrition.html', page: 'nutrition' }
     ] }
   ];
 
@@ -488,9 +493,9 @@
             '<div class="footer-col"><h4>Dashboard</h4>' +
               '<a href="status.html">Status</a><a href="quests.html">Quests</a>' +
               '<a href="vision.html">Vision</a><a href="advisor.html">Advisor</a></div>' +
-            '<div class="footer-col"><h4>More</h4>' +
-              '<a href="progress.html">Progress</a><a href="inventory.html">Inventory</a>' +
-              '<a href="index.html">Home</a></div>' +
+            '<div class="footer-col"><h4>Nutrition</h4>' +
+              '<a href="diet.html">BMI &amp; Diet Plan</a><a href="foods.html">Food Database</a>' +
+              '<a href="nutrition.html">Meal Calculator</a></div>' +
           '</div>' +
           '<div class="footer-bottom">' +
             '<span>Fan-made productivity prototype. Solo Leveling is owned by Chugong &amp; Redice Studio.</span>' +
@@ -1827,6 +1832,573 @@
     if (countEl) countEl.textContent = openCount + ' of ' + ITEMS.length + ' records';
   };
 
+  /* ---------------------------- Food database ---------------------------- */
+  Pages.foods = function () {
+    var db = window.NutritionDB;
+    var listEl = document.getElementById('food-list');
+    var searchEl = document.getElementById('food-search');
+    var catEl = document.getElementById('food-category');
+    var gramsEl = document.getElementById('food-grams');
+    var countEl = document.getElementById('food-count');
+    if (!db || !listEl) return;
+
+    var cats = db.categories();
+    if (catEl) {
+      catEl.innerHTML = '<option value="">All categories</option>' +
+        cats.map(function (c) { return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join('');
+    }
+
+    function gramsFactor() {
+      var g = parseFloat((gramsEl && gramsEl.value) || '100');
+      if (!isFinite(g) || g <= 0) g = 100;
+      return g / 100;
+    }
+
+    function fmtN(v, digits) {
+      var n = Number(v);
+      if (!isFinite(n)) return '0';
+      var d = typeof digits === 'number' ? digits : (Math.abs(n) >= 10 ? 1 : 2);
+      var s = (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toString();
+      return s;
+    }
+
+    function servingText(f) {
+      if (!f || !f.serving) return 'Reference per 100 g';
+      var s = f.serving;
+      var unit = s.unit || 'piece';
+      return '1 ' + unit + ' ≈ ' + fmtN(s.grams, 0) + ' g · per 100 g reference';
+    }
+
+    function render() {
+      var q = String((searchEl && searchEl.value) || '').trim().toLowerCase();
+      var cat = (catEl && catEl.value) || '';
+      var factor = gramsFactor();
+      var items = db.foods.filter(function (f) {
+        if (cat && f.category !== cat) return false;
+        if (q && f.name.toLowerCase().indexOf(q) === -1 && f.category.toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+
+      if (countEl) countEl.textContent = items.length + ' of ' + db.foods.length + ' items · values shown for ' + fmtN(factor * 100, 0) + ' g';
+
+      if (!items.length) {
+        listEl.innerHTML = emptyState('◈', 'No foods match', 'Try a different search term or category.');
+        return;
+      }
+
+      listEl.innerHTML = items.map(function (f) {
+        return '<article class="food-card card" style="padding:14px 16px">' +
+          '<div class="flex justify-between items-center" style="gap:12px;flex-wrap:wrap">' +
+            '<div>' +
+              '<div class="food-name" style="font-weight:600;color:#fff">' + escapeHtml(f.name) + '</div>' +
+              '<div class="mono tiny">' + escapeHtml(f.category) + ' · ' + escapeHtml(servingText(f)) + '</div>' +
+            '</div>' +
+            '<span class="chip chip-soft">' + fmtN(f.kcal * factor, 1) + ' kcal</span>' +
+          '</div>' +
+          '<div class="food-macros mono tiny" style="margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:6px 10px">' +
+            nutrientCell('Protein', f.protein * factor, 'g') +
+            nutrientCell('Carbs', f.carbs * factor, 'g') +
+            nutrientCell('Fat', f.fat * factor, 'g') +
+            nutrientCell('Fiber', f.fiber * factor, 'g') +
+            nutrientCell('Calcium', f.calcium * factor, 'mg') +
+            nutrientCell('Iron', f.iron * factor, 'mg') +
+            nutrientCell('Vitamin A', f.vitA * factor, 'mcg') +
+            nutrientCell('Vitamin C', f.vitC * factor, 'mg') +
+            nutrientCell('Folate', f.folate * factor, 'mcg') +
+            nutrientCell('Potassium', f.potassium * factor, 'mg') +
+          '</div>' +
+        '</article>';
+      }).join('');
+    }
+
+    function nutrientCell(label, value, unit) {
+      return '<div class="nut-cell"><span style="color:var(--primary-60)">' + label + '</span><br><strong style="color:#fff">' + fmtN(value, 2) + ' ' + unit + '</strong></div>';
+    }
+
+    [searchEl, catEl, gramsEl].forEach(function (el) {
+      if (!el) return;
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+    render();
+  };
+
+  /* ---------------------------- Meal calculator -------------------------- */
+  Pages.nutrition = function () {
+    var db = window.NutritionDB;
+    var dishNameEl = document.getElementById('meal-name');
+    var itemSearchEl = document.getElementById('meal-search');
+    var itemSelectEl = document.getElementById('meal-item');
+    var qtyEl = document.getElementById('meal-grams');
+    var qtyLabelEl = document.getElementById('meal-qty-label');
+    var qtyHintEl = document.getElementById('meal-qty-hint');
+    var addBtn = document.getElementById('meal-add');
+    var rowsEl = document.getElementById('meal-rows');
+    var totalsEl = document.getElementById('meal-totals');
+    var clearBtn = document.getElementById('meal-clear');
+    if (!db || !itemSelectEl || !rowsEl || !totalsEl) return;
+
+    var ingredients = [];
+
+    function fmtN(v, digits) {
+      var n = Number(v);
+      if (!isFinite(n)) return '0';
+      var d = typeof digits === 'number' ? digits : 2;
+      return (Math.round(n * Math.pow(10, d)) / Math.pow(10, d)).toString();
+    }
+
+    function filteredFoods() {
+      var q = String((itemSearchEl && itemSearchEl.value) || '').trim().toLowerCase();
+      return db.foods.filter(function (f) {
+        return !q || f.name.toLowerCase().indexOf(q) !== -1 || f.category.toLowerCase().indexOf(q) !== -1;
+      });
+    }
+
+    function renderSelect() {
+      var items = filteredFoods();
+      var prev = itemSelectEl.value;
+      itemSelectEl.innerHTML = items.map(function (f) {
+        var oi = db.foods.indexOf(f);
+        var label = f.name + ' (' + f.category + ')';
+        if (f.serving) label += ' — 1 ' + f.serving.unit + ' ≈ ' + f.serving.grams + ' g';
+        return '<option value="' + oi + '">' + escapeHtml(label) + '</option>';
+      }).join('');
+      if (!items.length) itemSelectEl.innerHTML = '<option value="">No matches</option>';
+      if (prev && itemSelectEl.querySelector('option[value="' + prev + '"]')) itemSelectEl.value = prev;
+      syncQtyMode();
+    }
+
+    function selectedFood() {
+      var idx = parseInt(itemSelectEl.value, 10);
+      if (!isFinite(idx) || idx < 0 || !db.foods[idx]) return null;
+      return { index: idx, food: db.foods[idx] };
+    }
+
+    function syncQtyMode() {
+      var sel = selectedFood();
+      var f = sel ? sel.food : null;
+      if (!qtyEl) return;
+      if (f && f.serving) {
+        var s = f.serving;
+        var u = s.unit || 'piece';
+        if (qtyLabelEl) qtyLabelEl.textContent = 'Quantity (' + (s.plural || (u + 's')) + ')';
+        qtyEl.placeholder = 'e.g. 2';
+        qtyEl.step = String(s.step || 1);
+        qtyEl.min = String(s.step || 1);
+        if (!qtyEl.value || parseFloat(qtyEl.value) === 150 || parseFloat(qtyEl.value) === 100) qtyEl.value = '1';
+        if (qtyHintEl) qtyHintEl.textContent = 'Piece-wise entry: 1 ' + u + ' ≈ ' + fmtN(s.grams, 0) + ' g (converted automatically). You can enter decimals if needed.';
+      } else {
+        if (qtyLabelEl) qtyLabelEl.textContent = 'Quantity (grams)';
+        qtyEl.placeholder = 'e.g. 150';
+        qtyEl.step = '1';
+        qtyEl.min = '1';
+        if (!qtyEl.value || parseFloat(qtyEl.value) === 1) qtyEl.value = '100';
+        if (qtyHintEl) qtyHintEl.textContent = 'Enter weight in grams. For countable items (eggs, roti, fruits) select them to enter pieces.';
+      }
+    }
+
+    function unitLabel(f, grams) {
+      if (f && f.serving) {
+        var count = grams / f.serving.grams;
+        var u = count === 1 ? (f.serving.unit || 'piece') : (f.serving.plural || ((f.serving.unit || 'piece') + 's'));
+        return fmtN(count, count % 1 === 0 ? 0 : 1) + ' ' + u + ' (' + fmtN(grams, 1) + ' g)';
+      }
+      return fmtN(grams, 1) + ' g';
+    }
+
+    function calcTotals() {
+      var totals = { kcal: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, calcium: 0, iron: 0, vitA: 0, vitC: 0, folate: 0, potassium: 0 };
+      ingredients.forEach(function (ing) {
+        var f = db.foods[ing.index];
+        if (!f) return;
+        var factor = ing.grams / 100;
+        Object.keys(totals).forEach(function (k) { totals[k] += (Number(f[k]) || 0) * factor; });
+      });
+      return totals;
+    }
+
+    function render() {
+      if (!ingredients.length) {
+        rowsEl.innerHTML = emptyState('◈', 'No ingredients added yet', 'Select an item, enter quantity (pieces for eggs/roti/fruits, or grams), and add it. Totals update automatically.');
+      } else {
+        rowsEl.innerHTML = ingredients.map(function (ing, i) {
+          var f = db.foods[ing.index];
+          if (!f) return '';
+          var factor = ing.grams / 100;
+          return '<div class="history-item" style="align-items:flex-start">' +
+            '<div style="min-width:0">' +
+              '<div class="history-name">' + escapeHtml(f.name) + '</div>' +
+              '<div class="mono tiny">' + escapeHtml(unitLabel(f, ing.grams)) + ' · ' + fmtN(f.kcal * factor, 1) + ' kcal · P ' + fmtN(f.protein * factor, 2) + 'g · C ' + fmtN(f.carbs * factor, 2) + 'g · F ' + fmtN(f.fat * factor, 2) + 'g</div>' +
+            '</div>' +
+            '<button class="btn btn-ghost btn-sm meal-remove" data-i="' + i + '" type="button">Remove</button>' +
+          '</div>';
+        }).join('');
+      }
+
+      var t = calcTotals();
+      totalsEl.innerHTML = db.nutrients.map(function (n) {
+        return '<div class="stat"><div class="stat-top"><span class="stat-label">' + escapeHtml(n.label.toUpperCase()) + '</span><span class="stat-val small">' + fmtN(t[n.key], n.unit === 'kcal' ? 1 : 2) + '</span></div><div class="stat-desc">' + escapeHtml(n.unit) + ' total</div></div>';
+      }).join('');
+
+      rowsEl.querySelectorAll('.meal-remove').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var i = parseInt(btn.getAttribute('data-i'), 10);
+          if (isFinite(i)) { ingredients.splice(i, 1); render(); }
+        });
+      });
+    }
+
+    if (itemSearchEl) itemSearchEl.addEventListener('input', renderSelect);
+    itemSelectEl.addEventListener('change', syncQtyMode);
+    renderSelect();
+
+    if (addBtn) {
+      addBtn.addEventListener('click', function () {
+        var sel = selectedFood();
+        if (!sel) { toast('Select an item', 'Choose a food from the list.'); return; }
+        var qty = parseFloat(qtyEl && qtyEl.value);
+        if (!isFinite(qty) || qty <= 0) { toast('Enter quantity', 'Enter a quantity greater than 0.'); return; }
+        var grams = sel.food.serving ? qty * sel.food.serving.grams : qty;
+        grams = Math.round(grams * 10) / 10;
+        ingredients.push({ index: sel.index, grams: grams, count: sel.food.serving ? qty : null });
+        render();
+        toast('Ingredient added', sel.food.name + ' · ' + unitLabel(sel.food, grams));
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function () {
+        if (!ingredients.length) return;
+        ingredients = [];
+        render();
+        toast('Cleared', 'All ingredients removed.');
+      });
+    }
+
+    render();
+  };
+
+  /* ---------------------------- BMI & Diet plan -------------------------- */
+  Pages.diet = function () {
+    var db = window.NutritionDB || { foods: [] };
+    var form = document.getElementById('bmi-form');
+    var resultEl = document.getElementById('bmi-result');
+    var planEl = document.getElementById('diet-plan');
+    if (!form || !resultEl || !planEl) return;
+
+    var lastPlan = null;
+
+    function round1(n) { return Math.round(n * 10) / 10; }
+    function clamp(n, a, b) { return Math.min(b, Math.max(a, n)); }
+
+    function bmiCategory(bmi) {
+      if (bmi < 18.5) return { label: 'Underweight', note: 'Below the healthy BMI range (18.5–24.9).', color: '#38bdf8' };
+      if (bmi < 25) return { label: 'Normal weight', note: 'Within the healthy BMI range (18.5–24.9).', color: '#34d399' };
+      if (bmi < 30) return { label: 'Overweight', note: 'Above the healthy BMI range (18.5–24.9).', color: '#fbbf24' };
+      return { label: 'Obesity', note: 'Well above the healthy BMI range (18.5–24.9).', color: '#ff4d6d' };
+    }
+
+    function mifflin(sex, kg, cm, age) {
+      var base = 10 * kg + 6.25 * cm - 5 * age;
+      return sex === 'female' ? base - 161 : base + 5;
+    }
+
+    function activityFactor(level) {
+      var map = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very: 1.9 };
+      return map[level] || 1.2;
+    }
+
+    function pickFood(names) {
+      for (var i = 0; i < names.length; i++) {
+        var f = db.foods.find(function (x) { return x.name.indexOf(names[i]) !== -1; });
+        if (f) return f;
+      }
+      return db.foods[0] || null;
+    }
+
+    function formatQty(food, grams) {
+      if (food && food.serving) {
+        var count = grams / food.serving.grams;
+        var rounded = Math.round(count * 10) / 10;
+        var u = (Math.abs(rounded - 1) < 0.001) ? (food.serving.unit || 'piece') : (food.serving.plural || ((food.serving.unit || 'piece') + 's'));
+        return (rounded % 1 === 0 ? String(Math.round(rounded)) : String(rounded)) + ' ' + u + ' (' + round1(grams) + ' g)';
+      }
+      return round1(grams) + ' g';
+    }
+
+    function buildExercises(goal, bmi) {
+      var common = [
+        'Warm-up: 5–10 min brisk walk or joint mobility daily.',
+        'Cool-down & stretching: 5–10 min after workouts.'
+      ];
+      if (goal === 'lose' || bmi >= 25) {
+        return [
+          'Brisk walking: 30–45 min, 5 days/week (moderate pace).',
+          'Strength training (full body): 2–3 days/week (squats, push-ups/incline, rows, glute bridges).',
+          'Low-impact cardio/cycling: 20–30 min, 1–2 days/week.',
+          'Daily movement: aim for 7,000–10,000 steps/day as tolerated.'
+        ].concat(common);
+      }
+      if (goal === 'gain' || bmi < 18.5) {
+        return [
+          'Strength training (progressive): 3–4 days/week focusing on compound lifts (squat, hinge, push, pull).',
+          'Light cardio: 15–20 min, 2 days/week (for heart health, not excess calorie burn).',
+          'Rest/recovery: at least 1–2 rest days/week; prioritize sleep.',
+          'Daily mobility: 5–10 min.'
+        ].concat(common);
+      }
+      return [
+        'Moderate cardio: 30 min brisk walk/cycling, 4–5 days/week.',
+        'Strength training (full body): 2–3 days/week.',
+        'Flexibility/yoga: 1–2 sessions/week.',
+        'Daily movement: aim for 7,000–9,000 steps/day.'
+      ].concat(common);
+    }
+
+    function buildDiet(targetKcal, pref) {
+      var veg = pref !== 'nonveg';
+      var breakfast = veg
+        ? [ ['Oats (cooked)', 250], ['Banana', 100], ['Milk (cow, toned)', 150] ]
+        : [ ['Egg (boiled, whole)', 100], ['Roti / Chapati (whole wheat)', 80], ['Apple (with skin)', 150] ];
+      var lunch = veg
+        ? [ ['Plain Rice (cooked)', 200], ['Dal Tadka (cooked)', 150], ['Mixed Vegetable Curry', 150], ['Dahi / Plain Curd', 100] ]
+        : [ ['Plain Rice (cooked)', 200], ['Chicken Curry (home-style)', 150], ['Mixed Vegetable Curry', 120], ['Cucumber (raw)', 100] ];
+      var snack = veg
+        ? [ ['Sprouts Salad', 150], ['Guava', 120] ]
+        : [ ['Greek Yogurt (plain)', 150], ['Orange', 130] ];
+      var dinner = veg
+        ? [ ['Roti / Chapati (whole wheat)', 80], ['Palak Paneer', 150], ['Tomato (raw)', 100] ]
+        : [ ['Roti / Chapati (whole wheat)', 80], ['Fish - Rohu (cooked)', 150], ['Mixed Vegetable Curry', 150] ];
+
+      function resolveMeal(items) {
+        return items.map(function (it) {
+          var f = pickFood([it[0]]);
+          return { name: f ? f.name : it[0], grams: it[1], food: f };
+        });
+      }
+
+      return {
+        targetKcal: targetKcal,
+        meals: [
+          { name: 'Breakfast', items: resolveMeal(breakfast) },
+          { name: 'Lunch', items: resolveMeal(lunch) },
+          { name: 'Snack', items: resolveMeal(snack) },
+          { name: 'Dinner', items: resolveMeal(dinner) }
+        ],
+        note: 'Portions are a starting template (countable items shown piece-wise where applicable). Adjust quantities to meet your calorie target and preferences. Drink water regularly and prioritize whole foods.'
+      };
+    }
+
+    function sumMeal(meal) {
+      var t = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+      meal.items.forEach(function (it) {
+        if (!it.food) return;
+        var factor = it.grams / 100;
+        t.kcal += (Number(it.food.kcal) || 0) * factor;
+        t.protein += (Number(it.food.protein) || 0) * factor;
+        t.carbs += (Number(it.food.carbs) || 0) * factor;
+        t.fat += (Number(it.food.fat) || 0) * factor;
+      });
+      return t;
+    }
+
+    function renderPlan(plan) {
+      var c = bmiCategory(plan.bmi);
+      var minW = plan.minHealthyWeight, maxW = plan.maxHealthyWeight;
+      resultEl.innerHTML =
+        '<div class="grid-4" style="margin-bottom:16px">' +
+          statCard('BMI', round1(plan.bmi), c.label) +
+          statCard('Healthy weight', round1(minW) + '–' + round1(maxW) + ' kg', 'For ' + round1(plan.heightCm) + ' cm height') +
+          statCard('Target calories', Math.round(plan.targetKcal) + ' kcal/day', plan.goalLabel) +
+          statCard('Target weight', round1(plan.targetWeight) + ' kg', 'Suggested goal') +
+        '</div>' +
+        '<div class="notice"><div><strong style="color:' + c.color + '">' + escapeHtml(c.label) + '</strong> ' +
+        escapeHtml(c.note) + ' BMR (Mifflin–St Jeor): ' + Math.round(plan.bmr) + ' kcal/day · TDEE: ' + Math.round(plan.tdee) + ' kcal/day. ' +
+        'Macros (approx.): Protein ' + Math.round(plan.macros.protein) + 'g, Carbs ' + Math.round(plan.macros.carbs) + 'g, Fat ' + Math.round(plan.macros.fat) + 'g.</div></div>';
+
+      var totalPlan = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+      plan.diet.meals.forEach(function (m) { var s = sumMeal(m); totalPlan.kcal += s.kcal; totalPlan.protein += s.protein; totalPlan.carbs += s.carbs; totalPlan.fat += s.fat; });
+
+      planEl.innerHTML =
+        '<div class="grid-2" style="align-items:start">' +
+          '<section class="module"><div class="module-head"><div><h2>Exercise plan</h2><p>Weekly routine to support your goal</p></div></div><ul class="body-sm" style="padding-left:18px;list-style:disc;display:grid;gap:8px">' +
+            plan.exercises.map(function (e) { return '<li>' + escapeHtml(e) + '</li>'; }).join('') +
+          '</ul></section>' +
+          '<section class="module"><div class="module-head"><div><h2>Daily targets</h2><p>Based on your inputs</p></div></div>' +
+            '<div class="stats">' +
+              statCardSmall('Calories', Math.round(plan.targetKcal) + ' kcal', 'Per day') +
+              statCardSmall('Protein', Math.round(plan.macros.protein) + ' g', 'Per day') +
+              statCardSmall('Carbs', Math.round(plan.macros.carbs) + ' g', 'Per day') +
+              statCardSmall('Fat', Math.round(plan.macros.fat) + ' g', 'Per day') +
+            '</div>' +
+            '<p class="body-sm" style="margin-top:10px">Sample plan total (approx.): ' + Math.round(totalPlan.kcal) + ' kcal · P ' + round1(totalPlan.protein) + 'g · C ' + round1(totalPlan.carbs) + 'g · F ' + round1(totalPlan.fat) + 'g</p>' +
+          '</section>' +
+        '</div>' +
+        '<section class="module" style="margin-top:16px"><div class="module-head"><div><h2>Diet plan to follow</h2><p>Sample day using foods from the database (' + (plan.preference === 'nonveg' ? 'non-veg' : 'vegetarian') + '), countable items shown piece-wise</p></div>' +
+        '<button id="diet-pdf" class="btn btn-secondary btn-sm" type="button">Download diet plan (PDF)</button></div>' +
+        '<div class="grid-2">' + plan.diet.meals.map(function (m) {
+          var s = sumMeal(m);
+          return '<div class="card" style="padding:14px 16px"><div class="flex justify-between items-center" style="margin-bottom:8px"><strong style="color:#fff">' + escapeHtml(m.name) + '</strong><span class="mono tiny">' + Math.round(s.kcal) + ' kcal</span></div>' +
+            '<ul class="body-sm" style="padding-left:18px;list-style:disc;display:grid;gap:4px">' +
+              m.items.map(function (it) {
+                var k = it.food ? Math.round((Number(it.food.kcal) || 0) * it.grams / 100) : 0;
+                return '<li>' + escapeHtml(it.name) + ' — ' + escapeHtml(formatQty(it.food, it.grams)) + ' (' + k + ' kcal)</li>';
+              }).join('') +
+            '</ul>' +
+            '<div class="mono tiny" style="margin-top:8px;color:var(--primary-60)">P ' + round1(s.protein) + 'g · C ' + round1(s.carbs) + 'g · F ' + round1(s.fat) + 'g</div>' +
+          '</div>';
+        }).join('') + '</div>' +
+        '<p class="body-sm" style="margin-top:12px">' + escapeHtml(plan.diet.note) + '</p></section>';
+
+      var btn = document.getElementById('diet-pdf');
+      if (btn) btn.addEventListener('click', function () { downloadDietPdf(plan); });
+    }
+
+    function statCard(label, value, desc) {
+      return '<div class="card" style="padding:14px 16px"><div class="mono tiny" style="color:var(--primary-60)">' + escapeHtml(label) + '</div><div style="font-size:1.35rem;font-weight:600;color:#fff;margin:4px 0">' + escapeHtml(String(value)) + '</div><div class="body-sm">' + escapeHtml(desc) + '</div></div>';
+    }
+    function statCardSmall(label, value, desc) {
+      return '<div class="stat"><div class="stat-top"><span class="stat-label">' + escapeHtml(label.toUpperCase()) + '</span><span class="stat-val small">' + escapeHtml(value) + '</span></div><div class="stat-desc">' + escapeHtml(desc) + '</div></div>';
+    }
+
+    function downloadDietPdf(plan) {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        toast('PDF library not loaded', 'jsPDF could not be loaded. Check your connection and try again.');
+        return;
+      }
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      var pageW = doc.internal.pageSize.getWidth();
+      var pageH = doc.internal.pageSize.getHeight();
+      var margin = 40;
+      var y = 0;
+
+      function newPage() {
+        doc.addPage();
+        drawBg();
+        y = 56;
+      }
+      function drawBg() {
+        doc.setFillColor(5, 6, 12);
+        doc.rect(0, 0, pageW, pageH, 'F');
+        doc.setFillColor(139, 92, 246);
+        doc.rect(0, 0, pageW, 6, 'F');
+        doc.setDrawColor(70, 80, 120);
+        doc.setLineWidth(0.5);
+        doc.line(margin, 34, pageW - margin, 34);
+        doc.setTextColor(233, 237, 251);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text('SYSTEM PORTAL  ·  PERSONAL DIET PLAN', margin, 24);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(152, 163, 194);
+        doc.text(fmtDate(Date.now()), pageW - margin, 24, { align: 'right' });
+      }
+      function ensure(space) { if (y + space > pageH - 50) newPage(); }
+      function heading(text) {
+        ensure(28);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(167, 139, 250);
+        doc.text(text, margin, y); y += 18;
+      }
+      function para(text, size, color) {
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(size || 10); doc.setTextColor.apply(doc, color || [185, 194, 220]);
+        var lines = doc.splitTextToSize(text, pageW - margin * 2);
+        ensure(lines.length * (size || 10) * 1.4 + 6);
+        doc.text(lines, margin, y);
+        y += lines.length * (size || 10) * 1.4 + 6;
+      }
+
+      drawBg(); y = 56;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.setTextColor(255,255,255);
+      doc.text('BMI & Diet Plan', margin, y); y += 10;
+      doc.setFontSize(10); doc.setTextColor(152,163,194);
+      var uname = (window.SystemAuth && window.SystemAuth.currentUser && window.SystemAuth.currentUser()) ? (window.SystemAuth.currentUser().name || window.SystemAuth.currentUser().email) : 'Hunter';
+      doc.text('Generated for ' + uname + ' · Goal: ' + plan.goalLabel, margin, y + 14);
+      y += 34;
+
+      heading('Your results');
+      para('BMI: ' + round1(plan.bmi) + ' (' + bmiCategory(plan.bmi).label + ')  |  Height: ' + round1(plan.heightCm) + ' cm  |  Weight: ' + round1(plan.weightKg) + ' kg  |  Age: ' + plan.age + '  |  Sex: ' + plan.sex);
+      para('Healthy weight range (BMI 18.5–24.9): ' + round1(plan.minHealthyWeight) + ' – ' + round1(plan.maxHealthyWeight) + ' kg  |  Suggested target weight: ' + round1(plan.targetWeight) + ' kg');
+      para('BMR (Mifflin–St Jeor): ' + Math.round(plan.bmr) + ' kcal/day  |  TDEE: ' + Math.round(plan.tdee) + ' kcal/day  |  Target intake: ' + Math.round(plan.targetKcal) + ' kcal/day');
+      para('Daily macros (approx.): Protein ' + Math.round(plan.macros.protein) + ' g, Carbs ' + Math.round(plan.macros.carbs) + ' g, Fat ' + Math.round(plan.macros.fat) + ' g');
+
+      heading('Exercise plan');
+      plan.exercises.forEach(function (e) { para('• ' + e); });
+
+      heading('Diet plan (sample day)');
+      plan.diet.meals.forEach(function (m) {
+        ensure(40);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(125, 211, 252);
+        doc.text(m.name, margin, y); y += 14;
+        m.items.forEach(function (it) {
+          var k = it.food ? Math.round((Number(it.food.kcal) || 0) * it.grams / 100) : 0;
+          para('  - ' + it.name + ': ' + formatQty(it.food, it.grams) + ' (' + k + ' kcal)', 9.5, [233,237,251]);
+        });
+        var s = sumMeal(m);
+        para('  Meal total: ' + Math.round(s.kcal) + ' kcal · P ' + round1(s.protein) + 'g · C ' + round1(s.carbs) + 'g · F ' + round1(s.fat) + 'g', 9, [152,163,194]);
+        y += 2;
+      });
+      para(plan.diet.note, 9, [152,163,194]);
+
+      ensure(30);
+      doc.setFontSize(8); doc.setTextColor(120,130,160);
+      para('Note: BMI, BMR (Mifflin–St Jeor) and targets are estimates for general guidance, not medical advice. Consult a qualified professional for personalised care.', 8, [120,130,160]);
+
+      var safeName = 'diet-plan-' + (new Date().toISOString().slice(0,10)) + '.pdf';
+      doc.save(safeName);
+      toast('PDF downloaded', 'Your diet plan was saved as ' + safeName);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var age = parseInt(document.getElementById('bmi-age').value, 10);
+      var sex = document.getElementById('bmi-sex').value;
+      var heightCm = parseFloat(document.getElementById('bmi-height').value);
+      var weightKg = parseFloat(document.getElementById('bmi-weight').value);
+      var activity = document.getElementById('bmi-activity').value;
+      var goal = document.getElementById('bmi-goal').value;
+      var pref = document.getElementById('bmi-pref').value;
+
+      if (!isFinite(age) || age < 10 || age > 100) { toast('Check age', 'Enter a valid age (10–100).'); return; }
+      if (!isFinite(heightCm) || heightCm < 100 || heightCm > 250) { toast('Check height', 'Enter height in cm (100–250).'); return; }
+      if (!isFinite(weightKg) || weightKg < 25 || weightKg > 300) { toast('Check weight', 'Enter weight in kg (25–300).'); return; }
+
+      var hM = heightCm / 100;
+      var bmi = weightKg / (hM * hM);
+      var minHealthyWeight = 18.5 * hM * hM;
+      var maxHealthyWeight = 24.9 * hM * hM;
+      var targetWeight = weightKg;
+      if (bmi < 18.5) targetWeight = minHealthyWeight;
+      else if (bmi > 24.9) targetWeight = 22 * hM * hM;
+
+      var bmr = mifflin(sex, weightKg, heightCm, age);
+      var tdee = bmr * activityFactor(activity);
+      var targetKcal = tdee;
+      var goalLabel = 'Maintain weight';
+      if (goal === 'lose') { targetKcal = tdee - 400; goalLabel = 'Fat loss (moderate deficit)'; }
+      else if (goal === 'gain') { targetKcal = tdee + 350; goalLabel = 'Muscle/weight gain (moderate surplus)'; }
+      targetKcal = clamp(targetKcal, 1200, 4200);
+
+      var protein = (goal === 'gain' ? 1.8 : 1.6) * weightKg;
+      var fat = 0.8 * weightKg;
+      var carbs = Math.max(0, (targetKcal - protein * 4 - fat * 9) / 4);
+
+      lastPlan = {
+        age: age, sex: sex, heightCm: heightCm, weightKg: weightKg,
+        bmi: bmi, minHealthyWeight: minHealthyWeight, maxHealthyWeight: maxHealthyWeight,
+        targetWeight: targetWeight, bmr: bmr, tdee: tdee, targetKcal: targetKcal,
+        goal: goal, goalLabel: goalLabel, preference: pref,
+        macros: { protein: protein, carbs: carbs, fat: fat },
+        exercises: buildExercises(goal, bmi),
+        diet: buildDiet(targetKcal, pref)
+      };
+
+      renderPlan(lastPlan);
+      toast('Plan generated', 'BMI calculated and your exercise + diet plan is ready. You can download it as a PDF.');
+      planEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
+
   /* ----------------------------------------------------------------------
      Boot
      ---------------------------------------------------------------------- */
@@ -1847,6 +2419,8 @@
     Store: Store,
     toast: toast,
     framePath: framePath,
-    derive: function () { return derive(Store.state); }
+    derive: function () { return derive(Store.state); },
+    escapeHtml: escapeHtml,
+    fmtDate: fmtDate
   };
 })();
