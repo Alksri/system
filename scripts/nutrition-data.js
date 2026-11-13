@@ -47,6 +47,9 @@
     { name: 'Chicken Curry (home-style)', category: 'Indian Dish', kcal: 180, protein: 16.0, carbs: 4.0, fat: 11.0, fiber: 0.8, calcium: 20, iron: 1.4, vitA: 40, vitC: 3, folate: 10, potassium: 240 },
     { name: 'Egg Curry', category: 'Indian Dish', kcal: 160, protein: 11.0, carbs: 5.0, fat: 10.5, fiber: 0.8, calcium: 45, iron: 1.8, vitA: 140, vitC: 2, folate: 35, potassium: 160 },
     { name: 'Fish Curry (rohu-style)', category: 'Indian Dish', kcal: 140, protein: 15.0, carbs: 3.0, fat: 7.5, fiber: 0.6, calcium: 30, iron: 1.0, vitA: 25, vitC: 2, folate: 12, potassium: 280 },
+    { name: 'Potoler Dolma (fish-stuffed, Bengali, cooked)', category: 'Indian Dish', kcal: 150, protein: 11.0, carbs: 8.0, fat: 8.0, fiber: 2.2, calcium: 35, iron: 1.4, vitA: 40, vitC: 10, folate: 28, potassium: 260 },
+    { name: 'Potoler Dolma (prawn-stuffed, Bengali, cooked)', category: 'Indian Dish', kcal: 145, protein: 12.0, carbs: 7.0, fat: 7.0, fiber: 2.0, calcium: 45, iron: 1.6, vitA: 35, vitC: 9, folate: 24, potassium: 250 },
+    { name: 'Potoler Dolma (vegetarian, Bengali, cooked)', category: 'Indian Dish', kcal: 160, protein: 4.5, carbs: 12.0, fat: 10.0, fiber: 3.0, calcium: 30, iron: 1.2, vitA: 30, vitC: 12, folate: 32, potassium: 280 },
     { name: 'Tandoori Chicken (no skin)', category: 'Indian Dish', kcal: 165, protein: 24.0, carbs: 2.0, fat: 6.5, fiber: 0.2, calcium: 18, iron: 1.2, vitA: 30, vitC: 2, folate: 8, potassium: 260 },
     { name: 'Mutton Curry', category: 'Indian Dish', kcal: 230, protein: 18.0, carbs: 3.0, fat: 16.0, fiber: 0.5, calcium: 15, iron: 2.2, vitA: 20, vitC: 1, folate: 8, potassium: 250 },
     { name: 'Sprouts Salad', category: 'Indian Dish', kcal: 100, protein: 7.0, carbs: 14.0, fat: 1.5, fiber: 4.5, calcium: 35, iron: 2.0, vitA: 60, vitC: 18, folate: 140, potassium: 320 },
@@ -185,7 +188,10 @@
       'Peach': { grams: 150, unit: 'peach', step: 1, plural: 'peaches' },
       'Plum': { grams: 66, unit: 'plum', step: 1, plural: 'plums' },
       'Kiwi': { grams: 75, unit: 'kiwi', step: 1, plural: 'kiwis' },
-      'Dates (dried)': { grams: 8, unit: 'date', step: 1, plural: 'dates' }
+      'Dates (dried)': { grams: 8, unit: 'date', step: 1, plural: 'dates' },
+      'Potoler Dolma (fish-stuffed, Bengali, cooked)': { grams: 70, unit: 'piece', step: 1, plural: 'pieces' },
+      'Potoler Dolma (prawn-stuffed, Bengali, cooked)': { grams: 70, unit: 'piece', step: 1, plural: 'pieces' },
+      'Potoler Dolma (vegetarian, Bengali, cooked)': { grams: 70, unit: 'piece', step: 1, plural: 'pieces' }
     };
     list.forEach(function (f) {
       var s = byName[f.name];
