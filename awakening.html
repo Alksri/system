@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Awakening · Chapter 01 — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="awakening">
+  <header id="site-header"></header>
+
+  <main class="chapter-hero">
+    <div class="container">
+      <nav class="chapter-crumb">
+        <a href="index.html">Home</a><span class="sep">/</span>
+        <span>Chapters</span><span class="sep">/</span>
+        <span>Awakening</span>
+      </nav>
+
+      <div class="chapter-track" data-chapter-track>
+        <div class="chapter-stage">
+          <canvas id="chapter-canvas"></canvas>
+          <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
+          <span class="hud-corner bl"></span><span class="hud-corner br"></span>
+          <div class="chapter-scroll-hint"><span class="live-dot"></span>Live sequence</div>
+          <div class="chapter-overlay">
+            <div class="chapter-kicker">Chapter 01 / 04 · Frames 001–065</div>
+            <h1 class="chapter-name">The Awakening</h1>
+            <p class="chapter-line">A solitary hunter stands before the boundary between realms. Beyond the open door, the system initializes a profile.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container chapter-body">
+      <p class="body-lg chapter-lead">
+        This is where the sequence begins. The first sixty-five frames carry the hunter from stillness into
+        awareness — the moment a quiet life is handed a system it did not ask for.
+      </p>
+
+      <div class="chapter-stats">
+        <div class="chapter-stat"><div class="k">Frame range</div><div class="v mono">001–065</div></div>
+        <div class="chapter-stat"><div class="k">Frames</div><div class="v mono">65</div></div>
+        <div class="chapter-stat"><div class="k">Playback</div><div class="v mono">15 fps · loop</div></div>
+      </div>
+
+      <nav class="chapter-nav">
+        <a href="index.html"><span class="dir">Back</span>← Home</a>
+        <a class="next" href="extraction.html"><span class="dir">Next chapter</span>Shadow Extraction →</a>
+      </nav>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

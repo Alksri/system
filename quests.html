@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quests — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="quests">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 02</div>
+        <h1 class="headline-lg">Quest log</h1>
+        <p class="body">Every quest stores a real deadline. Countdowns run on wall-clock time, so they keep expiring even when this tab is closed.</p>
+      </div>
+      <span class="chip"><span class="dot dot-live"></span>Wall-clock timers</span>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Daily quests</h2>
+            <p>Complete before the timer reaches zero</p>
+          </div>
+        </div>
+
+        <div class="notice" style="margin-bottom:var(--space-sm)">
+          <div>
+            <strong>Failure has a real cost</strong>
+            An expired quest removes one level and resets current XP, then adds 20% fatigue. At level 1 there is no level to lose, so fatigue rises by 40% instead. Fatigue recovers on its own.
+          </div>
+        </div>
+
+        <div id="quests-container"></div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Create a quest</h2>
+            <p>Issue a custom objective with a rank and timer</p>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field">
+            <label class="field-label" for="quest-title">Quest title</label>
+            <input id="quest-title" class="input" type="text" placeholder="e.g. Finish the report" />
+          </div>
+          <div class="form-2">
+            <div class="field">
+              <label class="field-label" for="quest-rank">Rank</label>
+              <select id="quest-rank" class="select">
+                <option value="E">E — ×1.00 reward</option>
+                <option value="D">D — ×1.25 reward</option>
+                <option value="C">C — ×1.50 reward</option>
+                <option value="B">B — ×2.00 reward</option>
+                <option value="A">A — ×2.50 reward</option>
+                <option value="S">S — ×3.00 reward</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="quest-minutes">Minutes</label>
+              <input id="quest-minutes" class="input" type="number" min="1" max="1440" placeholder="45" />
+            </div>
+          </div>
+          <div class="card-plain">
+            <div class="label-sm" style="color:var(--primary-60);margin-bottom:4px">Calculated reward</div>
+            <p class="body-sm" id="quest-preview">Rewards are calculated from duration × rank once you enter the minutes.</p>
+          </div>
+          <button id="add-quest" class="btn btn-block">Issue quest</button>
+        </div>
+
+        <div class="card-plain mt-sm">
+          <div class="label-sm" style="color:var(--primary-60);margin-bottom:8px">Reward scale · 30 minutes</div>
+          <div id="reward-scale"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="module mt-md">
+      <div class="module-head">
+        <div>
+          <h2>Quest history</h2>
+          <p>The last ten finished quests, newest first</p>
+        </div>
+      </div>
+      <div id="quest-history"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

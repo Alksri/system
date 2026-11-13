@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advisor — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="advisor">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 04</div>
+        <h1 class="headline-lg">System advisor</h1>
+        <p class="body">Ask about stat builds, leveling strategy, workouts, and the penalty zone.</p>
+      </div>
+      <span class="chip"><span class="dot dot-live"></span>Online</span>
+    </div>
+
+    <div class="grid-2" style="align-items:start;grid-template-columns:1.6fr 1fr">
+      <section class="module">
+        <div class="chat-wrap">
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-msg system">
+              <div class="msg-avatar">◈</div>
+              <div class="msg-bubble">
+                <span class="msg-author">System advisor</span>
+                <p>Ask me about stat distribution, leveling strategy, workout optimization, or the penalty zone.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-chips">
+            <button class="quick-chip" data-query="How do I gain levels fast?">Level up</button>
+            <button class="quick-chip" data-query="Best stat build for strength and endurance">Stat build</button>
+            <button class="quick-chip" data-query="What happens if I fail the daily quest">Penalty rules</button>
+            <button class="quick-chip" data-query="Daily workout routine pushups squats run">Workout</button>
+          </div>
+
+          <form id="chat-form" class="chat-form">
+            <input id="chat-input" class="input" type="text" placeholder="Ask the system…" autocomplete="off" />
+            <button class="btn" type="submit">Send</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>How it works</h2>
+            <p>A small, local knowledge base</p>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card-plain">
+            <div class="label-sm" style="color:var(--primary-60);margin-bottom:4px">Deterministic</div>
+            <p class="body-sm">Answers come from keyword matching over a fixed knowledge base — no network calls, no account.</p>
+          </div>
+          <div class="card-plain">
+            <div class="label-sm" style="color:var(--primary-60);margin-bottom:4px">Topics</div>
+            <p class="body-sm">Leveling, stat allocation, penalty rules, the daily workout, and shadow extraction.</p>
+          </div>
+          <div class="card-plain">
+            <div class="label-sm" style="color:var(--primary-60);margin-bottom:4px">Upgrade path</div>
+            <p class="body-sm">Swap the knowledge base for an LLM call when a backend is available.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

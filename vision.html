@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vision — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="vision">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 03</div>
+        <h1 class="headline-lg">Hunter vision</h1>
+        <p class="body">Capture a real camera frame and store it in this browser. Reminders use real deadlines and keep running across reloads.</p>
+      </div>
+      <span class="chip" id="cam-status"><span class="dot"></span>Camera offline</span>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Camera check-in</h2>
+            <p>Grant camera permission when prompted</p>
+          </div>
+        </div>
+
+        <div class="cam-frame">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <span class="cam-badge">Live</span>
+        </div>
+        <canvas id="camera-canvas" style="display:none"></canvas>
+
+        <div class="input-row mt-sm">
+          <button id="cam-start" class="btn btn-sm">Start camera</button>
+          <button id="cam-capture" class="btn btn-secondary btn-sm" disabled>Capture check-in</button>
+          <button id="cam-stop" class="btn btn-ghost btn-sm" disabled>Stop</button>
+        </div>
+
+        <div class="assessment mt-sm" id="assessment-out">
+          Start the camera and capture a frame. The image is resized, stored in this browser, and never analysed or uploaded.
+        </div>
+
+        <div class="module-head" style="margin-top:var(--space-sm);margin-bottom:10px">
+          <div>
+            <h2 style="font-size:var(--text-sm)">Saved check-ins</h2>
+            <p>Newest first · 6 kept</p>
+          </div>
+          <button id="checkin-clear" class="btn btn-ghost btn-sm" type="button">Clear all</button>
+        </div>
+        <div id="checkin-gallery"></div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Reminders</h2>
+            <p>Set a system reminder with a countdown</p>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field">
+            <label class="field-label" for="reminder-text">Reminder message</label>
+            <input id="reminder-text" class="input" type="text" placeholder="e.g. Next set in 3 minutes" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="reminder-minutes">Minutes from now</label>
+            <input id="reminder-minutes" class="input" type="number" value="15" min="1" />
+          </div>
+          <button id="reminder-add" class="btn btn-block">Set reminder</button>
+        </div>
+
+        <div id="reminder-list" class="mt-sm"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

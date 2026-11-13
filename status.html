@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Status — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="status">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 01</div>
+        <h1 class="headline-lg">Status window</h1>
+        <p class="body">Everything here is derived from your own activity and saved under your signed-in email. Changes save automatically.</p>
+      </div>
+      <button id="st-reset" class="btn btn-secondary btn-sm">Reset progress</button>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Profile</h2>
+            <p>Hunter identity and resources</p>
+          </div>
+          <span class="chip"><span class="dot dot-ink"></span><span id="st-rank">Rank E</span></span>
+        </div>
+
+        <div class="profile-row">
+          <div class="avatar" id="st-avatar">H</div>
+          <div>
+            <div class="headline-sm" style="color:#fff" id="st-name">Hunter</div>
+            <div class="body-sm" id="st-title">E-Rank Hunter</div>
+            <div class="flex gap-sm mt-xs wrap">
+              <span class="mono tiny">Level <span id="st-level">1</span></span>
+              <span class="mono tiny">Fatigue <span id="st-fatigue">0%</span></span>
+              <span class="mono tiny">Gold <span id="st-gold">0</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="gauge">
+          <div class="gauge-head"><span>HP</span><span class="mono tiny" id="st-hp">— / —</span></div>
+          <div class="gauge-track"><div class="gauge-fill" id="st-hpbar" style="width:100%"></div></div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-head"><span>MP</span><span class="mono tiny" id="st-mp">— / —</span></div>
+          <div class="gauge-track"><div class="gauge-fill" id="st-mpbar" style="width:100%"></div></div>
+        </div>
+        <div class="gauge">
+          <div class="gauge-head"><span>EXP</span><span class="mono tiny" id="st-exp">—</span></div>
+          <div class="gauge-track"><div class="gauge-fill" id="st-expbar" style="width:0%"></div></div>
+        </div>
+
+        <div class="card-plain mt-sm flex justify-between items-center">
+          <div>
+            <div class="mono tiny">Available ability points</div>
+            <div class="body-sm">+1 to one stat per point · +3 per level</div>
+          </div>
+          <div class="headline-md" id="st-ap" style="color:#fff">0</div>
+        </div>
+
+        <div class="stats" style="margin-top:12px">
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">QUESTS DONE</span><span class="stat-val" id="st-completed">0</span></div>
+            <div class="stat-desc">Completed objectives</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">STREAK</span><span class="stat-val" id="st-streak">0</span></div>
+            <div class="stat-desc">Consecutive days</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">BEST STREAK</span><span class="stat-val" id="st-best">0</span></div>
+            <div class="stat-desc">Personal record</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">TO NEXT LEVEL</span><span class="stat-val small" id="st-next">100 XP</span></div>
+            <div class="stat-desc">Remaining experience</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">MEMBER SINCE</span><span class="stat-val small" id="st-since">—</span></div>
+            <div class="stat-desc">Profile created</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Ability attributes</h2>
+            <p>Each point raises one stat by 1</p>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">STRENGTH</span><span class="stat-val" id="stat-str">10</span></div>
+            <button class="ap-plus-btn" data-stat="str" aria-label="Add strength">+</button>
+            <div class="stat-desc">Physical power and damage</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">AGILITY</span><span class="stat-val" id="stat-agi">10</span></div>
+            <button class="ap-plus-btn" data-stat="agi" aria-label="Add agility">+</button>
+            <div class="stat-desc">Speed and reaction</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">VITALITY</span><span class="stat-val" id="stat-vit">10</span></div>
+            <button class="ap-plus-btn" data-stat="vit" aria-label="Add vitality">+</button>
+            <div class="stat-desc">Max HP and recovery</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">INTELLIGENCE</span><span class="stat-val" id="stat-int">10</span></div>
+            <button class="ap-plus-btn" data-stat="int" aria-label="Add intelligence">+</button>
+            <div class="stat-desc">Mana and shadow limit</div>
+          </div>
+          <div class="stat">
+            <div class="stat-top"><span class="stat-label">PERCEPTION</span><span class="stat-val" id="stat-per">10</span></div>
+            <button class="ap-plus-btn" data-stat="per" aria-label="Add perception">+</button>
+            <div class="stat-desc">Threat detection</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

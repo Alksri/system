@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="inventory">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 06</div>
+        <h1 class="headline-lg">Progress records</h1>
+        <p class="body">Records and milestones unlocked by your real level, completed quests and best streak. Nothing here provides buffs — it reflects what you have actually done.</p>
+      </div>
+      <span class="chip" id="inv-count">0 of 7 records</span>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Unlocked records</h2>
+            <p>Click a record to see its unlock condition</p>
+          </div>
+        </div>
+
+        <div class="inv-grid" id="inv-grid">
+          <div class="inv-slot equipped" data-item data-name="Knight Killer">
+            <div class="inv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3l7 7-4 4-7-7zM9 10l-6 6 2 2 6-6M3 21l3-3"/></svg></div>
+            <div class="inv-name">Knight Killer</div>
+            <div class="inv-rank">Rank B</div>
+          </div>
+          <div class="inv-slot" data-item data-name="Rasaka's Fang">
+            <div class="inv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 3l7 7-4 4-7-7zM9 10l-6 6 2 2 6-6M3 21l3-3"/></svg></div>
+            <div class="inv-name">Rasaka's Fang</div>
+            <div class="inv-rank">Rank C</div>
+          </div>
+          <div class="inv-slot" data-item data-name="HP Potion x5">
+            <div class="inv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 3h6M10 3v6l-4 8a2 2 0 002 3h8a2 2 0 002-3l-4-8V3"/></svg></div>
+            <div class="inv-name">HP Potion x5</div>
+            <div class="inv-rank">Rank S</div>
+          </div>
+          <div class="inv-slot" data-item data-name="Dungeon Key">
+            <div class="inv-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="4"/><path d="M11 11l9 9M17 17l3-3M14 20l3-3"/></svg></div>
+            <div class="inv-name">Dungeon Key</div>
+            <div class="inv-rank">Rank S</div>
+          </div>
+          <div class="inv-slot empty"><span>Empty</span></div>
+          <div class="inv-slot empty"><span>Empty</span></div>
+          <div class="inv-slot empty"><span>Empty</span></div>
+          <div class="inv-slot empty"><span>Empty</span></div>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Milestones</h2>
+            <p>Unlocked automatically as your account progresses</p>
+          </div>
+        </div>
+
+        <div class="skills" id="skill-list">
+          <div class="skill">
+            <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div>
+            <div class="skill-body">
+              <div class="skill-top"><span class="skill-name">Sprint</span><span class="skill-lvl mono">Passive · Max</span></div>
+              <div class="skill-desc">Movement speed up 40% while active.</div>
+            </div>
+          </div>
+          <div class="skill">
+            <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.5 12C3.7 7.9 7.5 5 12 5s8.3 2.9 9.5 7c-1.2 4.1-5 7-9.5 7s-8.3-2.9-9.5-7z"/></svg></div>
+            <div class="skill-body">
+              <div class="skill-top"><span class="skill-name">Stealth</span><span class="skill-lvl mono">Active · 2</span></div>
+              <div class="skill-desc">Hides presence and vital signs.</div>
+            </div>
+          </div>
+          <div class="skill">
+            <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11V6a1 1 0 112 0v5m0-5a1 1 0 112 0v5m0-5a1 1 0 112 0v5m0-5a1 1 0 112 0v7a6 6 0 01-6 6h-1a6 6 0 01-6-6v-3a1 1 0 112 0"/></svg></div>
+            <div class="skill-body">
+              <div class="skill-top"><span class="skill-name">Ruler's Authority</span><span class="skill-lvl mono">Max</span></div>
+              <div class="skill-desc">Telekinetic manipulation at range.</div>
+            </div>
+          </div>
+          <div class="skill">
+            <div class="skill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-4.35-7-10a7 7 0 0114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg></div>
+            <div class="skill-body">
+              <div class="skill-top"><span class="skill-name">Shadow Extraction "Arise"</span><span class="skill-lvl mono">Max</span></div>
+              <div class="skill-desc">Extract shadows to form an immortal army.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

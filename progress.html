@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progress — System Portal</title>
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="progress">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Dashboard · Module 05</div>
+        <h1 class="headline-lg">Progression feed</h1>
+        <p class="body">A before/after record of where you started and where you are now. Photos stay in this browser.</p>
+      </div>
+      <button id="trans-open" class="btn">Post update</button>
+    </div>
+
+    <div class="trans-grid" id="trans-grid"></div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="trans-modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <div class="chip chip-outline" style="margin-bottom:8px">Privacy protocol</div>
+          <h3>Post transformation update</h3>
+        </div>
+        <button class="modal-close" id="trans-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="notice" style="margin-bottom:16px">
+        <div>
+          <strong>Your consent is required</strong>
+          Images are stored locally in your browser for personal tracking. They are never uploaded.
+        </div>
+      </div>
+
+      <form id="trans-form" class="form-stack">
+        <div class="field">
+          <label class="field-label" for="trans-author">Hunter name</label>
+          <input id="trans-author" class="input" type="text" placeholder="e.g. Jin-Woo" required />
+        </div>
+        <div class="form-2">
+          <div class="field">
+            <label class="field-label" for="trans-before">Before photo</label>
+            <input id="trans-before" class="input" type="file" accept="image/*" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="trans-after">Current photo</label>
+            <input id="trans-after" class="input" type="file" accept="image/*" required />
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="trans-caption">Notes</label>
+          <textarea id="trans-caption" class="textarea" placeholder="Describe the progression…" required></textarea>
+        </div>
+        <label class="check-row">
+          <input id="trans-perm" type="checkbox" required />
+          <span>I give permission to store and display these images in my progression feed.</span>
+        </label>
+        <div class="flex gap-xs" style="justify-content:flex-end">
+          <button type="button" class="btn btn-ghost btn-sm" id="trans-cancel">Cancel</button>
+          <button type="submit" class="btn btn-sm">Submit update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

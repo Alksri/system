@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — System Portal</title>
+  <meta name="description" content="Sign in to System Portal with Google or a local account." />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/auth.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+</head>
+<body class="auth-body">
+  <aside class="auth-visual">
+    <canvas id="auth-canvas" class="auth-canvas" aria-hidden="true"></canvas>
+    <div class="auth-scanline" aria-hidden="true"></div>
+    <div class="auth-orbs" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+    </div>
+    <div class="auth-rings" aria-hidden="true">
+      <span class="ring ring-1"></span>
+      <span class="ring ring-2"></span>
+      <span class="ring ring-3"></span>
+    </div>
+
+    <div class="auth-visual-inner">
+      <a class="brand auth-brand" href="login.html" aria-label="System Portal">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3 4.5 7v10L12 21l7.5-4V7L12 3Z" stroke="url(#abg)" stroke-width="1.4"/>
+            <path d="M12 7.2v9.6M8.4 10.1 12 7.2l3.6 2.9" stroke="#e9d5ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.4 13.9 12 16.8l3.6-2.9" stroke="#7dd3fc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="abg" x1="4" y1="3" x2="20" y2="21"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand-name">
+          <span class="brand-word">System</span>
+          <span class="brand-word alt">Portal</span>
+        </span>
+      </a>
+
+      <div class="auth-copy">
+        <span class="chip auth-chip" style="margin-bottom:18px"><span class="dot dot-live"></span>Secure access gate</span>
+        <h1 class="display auth-hero-title">
+          <span class="hero-line">ARISE.</span>
+          <span class="hero-line gradient-text">Sign in to continue.</span>
+        </h1>
+        <p>One private profile per account. Quests, stats, check-ins and progress are stored under the email you sign in with — on this device only.</p>
+        <div class="hero-signal"><span class="bar"></span><span>IDENTITY CHECK · REQUIRED</span></div>
+      </div>
+
+      <div class="auth-visual-foot">
+        <span>270 frames · 4 chapters</span>
+        <span>Per-account · Local-first</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="auth-panel">
+    <div class="auth-card">
+      <span class="kicker">Hunter authentication</span>
+      <h2 class="auth-title" id="auth-title">Welcome back</h2>
+      <p class="auth-sub" id="auth-sub">Sign in with Google, or use a local account stored in this browser.</p>
+
+      <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+        <button type="button" class="auth-tab active" id="tab-signin" role="tab" aria-selected="true">Sign in</button>
+        <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="false">Create account</button>
+      </div>
+
+      <div class="gsi-slot" id="gsi-slot"></div>
+
+      <div class="auth-note" id="google-note" hidden>
+        <strong>Google Sign-In needs a client ID</strong>
+        Real Google sign-in is wired up, but it stays disabled until you add an OAuth Web client ID:
+        <ol>
+          <li>Create an OAuth client in Google Cloud Console.</li>
+          <li>Authorise the origin <code>http://localhost:8090</code>.</li>
+          <li>Paste the ID into <code>scripts/config.js</code>.</li>
+        </ol>
+        Local accounts work right now.
+      </div>
+
+      <div class="auth-divider" id="auth-divider">or use email</div>
+
+      <form class="auth-form" id="auth-form" novalidate>
+        <div class="field" id="auth-name-field" hidden>
+          <label class="field-label" for="auth-name">Display name</label>
+          <input id="auth-name" class="input" type="text" name="name" placeholder="e.g. Jin-Woo" autocomplete="name" />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="auth-email">Email</label>
+          <input id="auth-email" class="input" type="email" name="email" placeholder="you@example.com" autocomplete="email" required />
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="auth-password">
+            Password
+            <span class="auth-hint" id="auth-pass-hint">At least 8 characters</span>
+          </label>
+          <input id="auth-password" class="input" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required minlength="8" />
+        </div>
+
+        <div class="auth-error" id="auth-error" role="alert"></div>
+        <div class="auth-success" id="auth-success" role="status"></div>
+
+        <button class="btn btn-block" type="submit" id="auth-submit">Sign in</button>
+      </form>
+
+      <div class="auth-note auth-admin-note" id="auth-admin-note">
+        <strong>Admin access</strong>
+        Built-in admin account: <code id="admin-email">admin@system.local</code><br />
+        Password: <code id="admin-password">AriseAdmin#2026</code><br />
+        <span style="display:block;margin-top:6px;color:var(--primary-60)">Sign in with these credentials to access the site as admin. You can change them in <code>scripts/config.js</code>.</span>
+      </div>
+
+      <div class="auth-note">
+        <strong>How accounts work here</strong>
+        This is a static site with no backend. Local passwords are hashed with PBKDF2-SHA-256 (210,000 iterations) and a unique salt before being stored in this browser. Sessions expire after <span id="auth-hours">12</span> hours. Data never leaves this device.
+      </div>
+
+      <p class="auth-foot">
+        Google sign-in is handled by Google Identity Services. This static build reads the returned ID token in the browser and checks its audience and expiry; it cannot verify the token's signature without a server. Use it for personal, non-sensitive tracking only.
+      </p>
+    </div>
+  </main>
+
+  <script src="scripts/login.js"></script>
+</body>
+</html>

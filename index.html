@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Portal — Progression Dashboard</title>
+  <meta name="description" content="A gamified progression dashboard that tracks real habits through timed quests, stats, and reflection." />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+</head>
+<body data-page="home">
+  <header id="site-header"></header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-canvas-wrap">
+        <canvas id="hero-canvas"></canvas>
+      </div>
+      <div class="hero-shade"></div>
+      <div class="hero-grain"></div>
+      <span class="hud-corner tl"></span><span class="hud-corner tr"></span>
+      <span class="hud-corner bl"></span><span class="hud-corner br"></span>
+      <span class="hero-ghost" aria-hidden="true">ARISE</span>
+
+      <div class="container" style="position:relative;z-index:2;width:100%">
+        <div class="hero-content">
+          <div class="hero-eyebrow">
+            <span class="chip"><span class="dot dot-live"></span>System online</span>
+            <span class="chip chip-outline" id="home-rank-chip">Rank E · Level 1</span>
+          </div>
+          <h1 class="display hero-title">
+            ARISE.<br />
+            <span class="gradient-text">Become the strongest.</span>
+          </h1>
+          <p class="body-lg hero-copy">
+            The System has chosen you. Turn real habits into timed quests, raise your stats,
+            and watch the weakest hunter become the Shadow Monarch.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="status.html">Enter the System</a>
+            <a class="btn btn-secondary" href="awakening.html">Watch the opening</a>
+          </div>
+          <div class="hero-meta">
+            <div class="hero-meta-item"><div class="num">4</div><div class="cap">Chapters</div></div>
+            <div class="hero-meta-item"><div class="num">6</div><div class="cap">Modules</div></div>
+            <div class="hero-meta-item"><div class="num">270</div><div class="cap">Frames</div></div>
+            <div class="hero-meta-item"><div class="num">11</div><div class="cap">Pages</div></div>
+          </div>
+          <div class="hero-signal">
+            <span class="bar"></span>
+            <span id="hero-signal-text">QUEST READY · DAILY CONDITIONING</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker-track" id="home-ticker"></div>
+      </div>
+    </section>
+
+    <!-- System notification -->
+    <section id="notice" class="section container" style="padding-top:var(--space-md);padding-bottom:0">
+      <div class="split-2">
+        <div class="system-notice">
+          <div class="sn-head"><span class="sn-dot"></span><span id="home-notice-label">Notification</span></div>
+          <div class="sn-title" id="home-notice-title">No active quests</div>
+          <p class="sn-body" id="home-notice-body">
+            Issue your first timed objective and it will appear here with a real countdown.
+          </p>
+          <div class="sn-reward" id="home-notice-rewards">
+            <a class="btn-link" href="quests.html">Issue your first quest →</a>
+          </div>
+        </div>
+
+        <div class="module" style="padding:20px 22px">
+          <div class="flex justify-between items-center" style="margin-bottom:14px">
+            <span class="label-sm">Status window</span>
+            <span class="chip" style="padding:5px 10px" id="home-level">LV 1</span>
+          </div>
+          <div class="gauge">
+            <div class="gauge-head"><span>HP</span><span class="mono tiny" id="home-hp">— / —</span></div>
+            <div class="gauge-track"><div class="gauge-fill" id="home-hp-bar" style="width:100%"></div></div>
+          </div>
+          <div class="gauge">
+            <div class="gauge-head"><span>MP</span><span class="mono tiny" id="home-mp">— / —</span></div>
+            <div class="gauge-track"><div class="gauge-fill" id="home-mp-bar" style="width:100%"></div></div>
+          </div>
+          <div class="gauge" style="margin-bottom:0">
+            <div class="gauge-head"><span>EXP</span><span class="mono tiny" id="home-exp">0 / 100</span></div>
+            <div class="gauge-track"><div class="gauge-fill" id="home-exp-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapters -->
+    <section id="story" class="section container">
+      <div class="dash-head">
+        <div>
+          <div class="chip chip-outline" style="margin-bottom:12px">The story</div>
+          <h1 class="headline-lg">Four chapters, one climb</h1>
+          <p class="body">Each chapter is its own page, with a full-bleed autoplaying sequence built from the 270-frame animation.</p>
+        </div>
+        <a class="btn-link" href="awakening.html">Start at Awakening →</a>
+      </div>
+
+      <div class="feature-grid">
+        <a class="feature" href="awakening.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/></svg></div>
+          <h3>Awakening · Chapter 01</h3>
+          <p>A solitary hunter stands at the boundary between realms as the system initializes a profile.</p>
+          <span class="go">Open chapter →</span>
+        </a>
+        <a class="feature" href="extraction.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></div>
+          <h3>Extraction · Chapter 02</h3>
+          <p>Mana surges as the dimensional fabric fractures and dormant souls begin to resonate.</p>
+          <span class="go">Open chapter →</span>
+        </a>
+        <a class="feature" href="arise.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+          <h3>Arise · Chapter 03</h3>
+          <p>The extraction skill activates. Every fallen soul in the domain answers the call.</p>
+          <span class="go">Open chapter →</span>
+        </a>
+        <a class="feature" href="army.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <h3>Army · Chapter 04</h3>
+          <p>The legion assembles. Enter the dashboard and turn narrative momentum into daily action.</p>
+          <span class="go">Open chapter →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Modules -->
+    <section id="modules" class="section container">
+      <div class="dash-head">
+        <div>
+          <div class="chip chip-outline" style="margin-bottom:12px">The dashboard</div>
+          <h1 class="headline-lg">Six modules, each on its own page</h1>
+          <p class="body">Everything is separated so each tool gets room to breathe — and each has working state.</p>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <a class="feature" href="status.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18M7 14l3-4 3 3 4-6"/></svg></div>
+          <h3>Status</h3>
+          <p>Player level, rank, HP, MP, EXP, and ability-point allocation across five stats.</p>
+          <span class="go">Open status →</span>
+        </a>
+        <a class="feature" href="quests.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <h3>Quests</h3>
+          <p>Timed daily objectives with countdowns, rewards, and automatic penalties on expiry.</p>
+          <span class="go">Open quests →</span>
+        </a>
+        <a class="feature" href="vision.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.5 12C3.7 7.9 7.5 5 12 5s8.3 2.9 9.5 7c-1.2 4.1-5 7-9.5 7s-8.3-2.9-9.5-7z"/></svg></div>
+          <h3>Vision</h3>
+          <p>Webcam check-ins stored in this browser, plus a reminder scheduler with real timestamps.</p>
+          <span class="go">Open vision →</span>
+        </a>
+        <a class="feature" href="advisor.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a7 7 0 00-7 7c0 3 2 5 3 7h8c1-2 3-4 3-7a7 7 0 00-7-7zM9 21h6"/></svg></div>
+          <h3>Advisor</h3>
+          <p>A rule-based chat that answers from your real level, XP, stats, streak and active quests.</p>
+          <span class="go">Open advisor →</span>
+        </a>
+        <a class="feature" href="progress.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19V5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H6a2 2 0 01-2-2z"/><path d="M9 13h6M9 17h6"/></svg></div>
+          <h3>Progress</h3>
+          <p>A before/after transformation feed with explicit consent and local storage.</p>
+          <span class="go">Open progress →</span>
+        </a>
+        <a class="feature" href="inventory.html">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg></div>
+          <h3>Inventory</h3>
+          <p>Progress records and milestone skills that unlock from real quest counts, streaks and levels.</p>
+          <span class="go">Open inventory →</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Closing CTA -->
+    <section class="section container center">
+      <h2 class="headline-lg">The system does not lie</h2>
+      <p class="body" style="max-width:520px;margin:12px auto 24px">Start with one quest today. The rest compounds.</p>
+      <a class="btn" href="quests.html">Open the quest log</a>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>
