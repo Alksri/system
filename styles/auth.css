@@ -176,6 +176,21 @@
   display: block;
   animation: fadeSlideUp 800ms var(--ease) both;
 }
+.auth-hero-title .hero-line:first-child {
+  font-family: var(--font-display, 'Segoe UI', sans-serif);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(167,139,250,0.35);
+  background: linear-gradient(110deg, #c4b5fd 0%, #7dd3fc 35%, #ffffff 50%, #a78bfa 70%, #7dd3fc 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 16px rgba(139,92,246,0.45)) drop-shadow(0 0 34px rgba(56,189,248,0.18));
+  animation: fadeSlideUp 800ms var(--ease) both, ariseShimmer 5s linear infinite 1s, ariseTextPulse 3.5s ease-in-out infinite 1s;
+}
+@keyframes ariseShimmer { 0%{ background-position: 0% 50%; } 100%{ background-position: 220% 50%; } }
+@keyframes ariseTextPulse { 0%,100%{ filter: drop-shadow(0 0 14px rgba(139,92,246,0.4)) drop-shadow(0 0 26px rgba(56,189,248,0.15)); transform: translateY(0); } 50%{ filter: drop-shadow(0 0 22px rgba(139,92,246,0.7)) drop-shadow(0 0 42px rgba(56,189,248,0.3)); transform: translateY(-1px); } }
 .auth-hero-title .hero-line:nth-child(1) { animation-delay: 260ms; }
 .auth-hero-title .hero-line:nth-child(2) { animation-delay: 380ms; }
 

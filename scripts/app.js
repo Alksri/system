@@ -517,6 +517,20 @@
       toggle.addEventListener('click', function () { links.classList.toggle('open'); });
     }
 
+    // Global animated "ARISE" ambience on all pages
+    if (!document.querySelector('.global-arise-fx')) {
+      var fx = document.createElement('div');
+      fx.className = 'global-arise-fx';
+      fx.setAttribute('aria-hidden', 'true');
+      fx.innerHTML =
+        '<span class="ga-word">ARISE</span>' +
+        '<span class="ga-word ga-word-2">ARISE</span>' +
+        '<span class="ga-ring"></span>' +
+        '<span class="ga-ring ga-ring-2"></span>' +
+        '<span class="ga-particles"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>';
+      document.body.appendChild(fx);
+    }
+
     return derived;
   }
 

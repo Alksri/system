@@ -1186,6 +1186,118 @@ input[type="file"]::file-selector-button {
   .user-name { display: none; }
 }
 
+/* --------------------------------------------------------------------------
+   Global ARISE ambience (animated, all pages)
+   -------------------------------------------------------------------------- */
+.global-arise-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+body { position: relative; }
+main, .site-header, .site-footer, .nf-wrap { position: relative; z-index: 1; }
+.site-header { z-index: 50; }
+.global-arise-fx .ga-word {
+  position: absolute;
+  right: -0.04em;
+  bottom: 8vh;
+  font-family: var(--font-display, 'Segoe UI', sans-serif);
+  font-weight: 800;
+  font-size: clamp(4rem, 18vw, 16rem);
+  line-height: 0.8;
+  letter-spacing: 0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(167,139,250,0.10);
+  background: linear-gradient(120deg, rgba(139,92,246,0.00) 20%, rgba(167,139,250,0.22) 40%, rgba(125,211,252,0.22) 55%, rgba(139,92,246,0.00) 75%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(139,92,246,0.18));
+  opacity: 0.35;
+  transform: translateZ(0);
+  animation: gaFloat 14s ease-in-out infinite, gaShimmer 7s linear infinite;
+}
+.global-arise-fx .ga-word-2 {
+  left: -0.06em;
+  right: auto;
+  top: 18vh;
+  bottom: auto;
+  font-size: clamp(3rem, 12vw, 10rem);
+  opacity: 0.18;
+  -webkit-text-stroke: 1px rgba(125,211,252,0.10);
+  animation: gaFloat2 18s ease-in-out infinite reverse, gaShimmer 9s linear infinite reverse;
+}
+.global-arise-fx .ga-ring {
+  position: absolute;
+  left: 75%;
+  top: 55%;
+  width: min(42vw, 520px);
+  height: min(42vw, 520px);
+  border-radius: 50%;
+  border: 1px solid rgba(167,139,250,0.10);
+  box-shadow: 0 0 40px rgba(139,92,246,0.08), inset 0 0 30px rgba(139,92,246,0.05);
+  transform: translate(-50%, -50%);
+  animation: gaSpin 26s linear infinite, gaPulse 8s ease-in-out infinite;
+}
+.global-arise-fx .ga-ring::before,
+.global-arise-fx .ga-ring::after {
+  content: '';
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  border: 1px dashed rgba(125,211,252,0.10);
+}
+.global-arise-fx .ga-ring::after { inset: 22%; border-style: solid; border-color: rgba(167,139,250,0.08); }
+.global-arise-fx .ga-ring-2 {
+  left: 18%;
+  top: 28%;
+  width: min(28vw, 320px);
+  height: min(28vw, 320px);
+  border-color: rgba(125,211,252,0.10);
+  animation-duration: 34s, 10s;
+  animation-direction: reverse, normal;
+}
+.global-arise-fx .ga-particles { position: absolute; inset: 0; }
+.global-arise-fx .ga-particles i {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: rgba(167,139,250,0.8);
+  box-shadow: 0 0 10px rgba(167,139,250,0.9), 0 0 20px rgba(56,189,248,0.35);
+  opacity: 0;
+  animation: gaRise 10s linear infinite;
+}
+.global-arise-fx .ga-particles i:nth-child(1){ left:10%; bottom:8%; animation-duration:11s; }
+.global-arise-fx .ga-particles i:nth-child(2){ left:22%; bottom:18%; animation-duration:13s; animation-delay:-3s; transform:scale(0.7); }
+.global-arise-fx .ga-particles i:nth-child(3){ left:38%; bottom:5%; animation-duration:9s; animation-delay:-5s; }
+.global-arise-fx .ga-particles i:nth-child(4){ left:55%; bottom:12%; animation-duration:14s; animation-delay:-2s; transform:scale(1.2); }
+.global-arise-fx .ga-particles i:nth-child(5){ left:68%; bottom:20%; animation-duration:12s; animation-delay:-7s; }
+.global-arise-fx .ga-particles i:nth-child(6){ left:80%; bottom:6%; animation-duration:10s; animation-delay:-4s; transform:scale(0.8); }
+.global-arise-fx .ga-particles i:nth-child(7){ left:90%; bottom:16%; animation-duration:15s; animation-delay:-6s; }
+.global-arise-fx .ga-particles i:nth-child(8){ left:46%; bottom:22%; animation-duration:16s; animation-delay:-8s; transform:scale(0.6); }
+@keyframes gaFloat { 0%,100%{ transform: translateY(0) scale(1);} 50%{ transform: translateY(-18px) scale(1.02);} }
+@keyframes gaFloat2 { 0%,100%{ transform: translateY(0) translateX(0);} 50%{ transform: translateY(14px) translateX(10px);} }
+@keyframes gaShimmer { 0%{ background-position: 0% 50%; } 100%{ background-position: 200% 50%; } }
+.global-arise-fx .ga-word, .global-arise-fx .ga-word-2 { background-size: 200% 100%; }
+@keyframes gaSpin { from{ transform: translate(-50%,-50%) rotate(0deg);} to{ transform: translate(-50%,-50%) rotate(360deg);} }
+@keyframes gaPulse { 0%,100%{ opacity: .55; } 50%{ opacity: 1; } }
+@keyframes gaRise { 0%{ transform: translateY(0) scale(0.6); opacity: 0; } 10%{ opacity: .8; } 80%{ opacity: .2; } 100%{ transform: translateY(-55vh) scale(1.1); opacity: 0; } }
+
+body[data-page="home"] .global-arise-fx .ga-word { opacity: 0.18; }
+body[data-page="login"] .global-arise-fx { opacity: 0.5; }
+
+@media (max-width: 640px) {
+  .global-arise-fx .ga-word { font-size: clamp(3.2rem, 22vw, 6rem); bottom: 10vh; opacity: .22; }
+  .global-arise-fx .ga-word-2 { font-size: clamp(2.4rem, 16vw, 4rem); top: 14vh; }
+  .global-arise-fx .ga-ring { opacity: .6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-arise-fx *, .global-arise-fx *::before, .global-arise-fx *::after { animation: none !important; }
+}
+
+
 @media (max-width: 640px) {
   .checkin-grid { grid-template-columns: repeat(2, 1fr); }
 }

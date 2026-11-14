@@ -161,7 +161,7 @@
 }
 
 @media (max-width: 640px) {
-  .hero-ghost { display: none; }
+  .hero-ghost { font-size: clamp(3.5rem, 24vw, 6rem); right: -0.02em; bottom: 0.12em; opacity: 0.9; }
   .hero-meta { gap: var(--space-sm); }
   .hero-meta-item .num { font-size: 1.5rem; }
 }
@@ -1028,14 +1028,45 @@
   z-index: 1;
   font-family: var(--font-display);
   font-size: clamp(5rem, 17vw, 15rem);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   line-height: 0.8;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(167, 139, 250, 0.18);
+  -webkit-text-stroke: 1.5px rgba(167, 139, 250, 0.28);
+  background: linear-gradient(110deg, rgba(139,92,246,0.05) 0%, rgba(167,139,250,0.55) 25%, rgba(125,211,252,0.55) 50%, rgba(167,139,250,0.55) 75%, rgba(139,92,246,0.05) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 22px rgba(139,92,246,0.35)) drop-shadow(0 0 46px rgba(56,189,248,0.18));
   pointer-events: none;
   user-select: none;
+  animation: ariseShimmer 6s linear infinite, ariseFloat 8s ease-in-out infinite, arisePulse 4s ease-in-out infinite;
 }
+.hero-ghost::before,
+.hero-ghost::after {
+  content: 'ARISE';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero-ghost::before {
+  -webkit-text-stroke: 0;
+  color: rgba(56,189,248,0.12);
+  filter: blur(10px);
+  transform: translate(4px, 0);
+  animation: ariseGhostShift 5s ease-in-out infinite alternate;
+}
+.hero-ghost::after {
+  -webkit-text-stroke: 0;
+  color: rgba(167,139,250,0.10);
+  filter: blur(18px);
+  transform: translate(-6px, 2px);
+  animation: ariseGhostShift 7s ease-in-out infinite alternate-reverse;
+}
+@keyframes ariseShimmer { 0%{ background-position: 0% 50%; } 100%{ background-position: 220% 50%; } }
+@keyframes ariseFloat { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-10px); } }
+@keyframes arisePulse { 0%,100%{ opacity: .88; } 50%{ opacity: 1; filter: drop-shadow(0 0 30px rgba(139,92,246,0.55)) drop-shadow(0 0 60px rgba(56,189,248,0.25)); } }
+@keyframes ariseGhostShift { 0%{ transform: translate(4px,0) scale(1); opacity:.6;} 100%{ transform: translate(10px,-4px) scale(1.01); opacity:1;} }
 
 .ticker {
   position: absolute;
@@ -1168,6 +1199,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ticker-track, .hero-ghost, .boot::after, .boot-mark { animation: none !important; }
+  .ticker-track, .hero-ghost, .hero-ghost::before, .hero-ghost::after, .boot::after, .boot-mark { animation: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
