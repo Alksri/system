@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exercises — System Portal</title>
+  <meta name="description" content="Breathing exercises, regular training tasks, timers, and level progression." />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+  <meta name="theme-color" content="#05060c" />
+  <meta name="color-scheme" content="dark" />
+</head>
+<body data-page="exercises">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Training · Exercises</div>
+        <h1 class="headline-lg">Breathing &amp; daily training</h1>
+        <p class="body">Complete guided breathing and regular exercises with timers. Finish all daily tasks for 2–3 days to level up your training — each level makes tasks harder and rewards XP.</p>
+      </div>
+      <span class="chip" id="ex-level-chip">Exercise LV 1</span>
+    </div>
+
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="card" style="padding:16px">
+        <div class="mono tiny" style="color:var(--primary-60)">Training level</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#fff;margin:4px 0" id="ex-level">1</div>
+        <div class="body-sm" id="ex-level-desc">Complete daily tasks to progress</div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div class="mono tiny" style="color:var(--primary-60)">Daily progress</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#fff;margin:4px 0" id="ex-daily-progress">0 / 0</div>
+        <div class="body-sm" id="ex-daily-note">Tasks completed today</div>
+      </div>
+      <div class="card" style="padding:16px">
+        <div class="mono tiny" style="color:var(--primary-60)">Days to next level</div>
+        <div style="font-size:1.6rem;font-weight:700;color:#fff;margin:4px 0" id="ex-days-left">—</div>
+        <div class="body-sm" id="ex-days-note">Finish all tasks on required days</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Breathing exercise</h2>
+            <p id="breath-pattern-label">Guided breathing with animation and timer</p>
+          </div>
+          <span class="chip chip-soft" id="breath-level-chip">LV 1</span>
+        </div>
+
+        <div class="breath-wrap">
+          <div class="breath-visual" id="breath-visual" aria-hidden="true">
+            <div class="breath-ring"></div>
+            <div class="breath-ring ring-2"></div>
+            <div class="breath-core" id="breath-core">
+              <div class="breath-phase" id="breath-phase">Ready</div>
+              <div class="breath-count" id="breath-count">—</div>
+            </div>
+          </div>
+          <div class="breath-info">
+            <div class="mono tiny" style="color:var(--primary-60);margin-bottom:4px">Pattern</div>
+            <div style="font-weight:600;color:#fff;margin-bottom:8px" id="breath-pattern-name">—</div>
+            <div class="body-sm" id="breath-instruction">Press start to begin your guided breathing session.</div>
+            <div class="stats" style="margin-top:12px">
+              <div class="stat"><div class="stat-top"><span class="stat-label">SESSION</span><span class="stat-val small" id="breath-timer">00:00</span></div><div class="stat-desc">elapsed / target</div></div>
+              <div class="stat"><div class="stat-top"><span class="stat-label">CYCLES</span><span class="stat-val small" id="breath-cycles">0 / 0</span></div><div class="stat-desc">completed</div></div>
+            </div>
+            <div class="flex gap-xs wrap" style="margin-top:14px">
+              <button id="breath-start" class="btn btn-sm" type="button">Start breathing</button>
+              <button id="breath-pause" class="btn btn-secondary btn-sm" type="button">Pause</button>
+              <button id="breath-reset" class="btn btn-ghost btn-sm" type="button">Reset</button>
+              <button id="breath-done" class="btn btn-sm" type="button" style="margin-left:auto">Mark complete</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Exercise timer</h2>
+            <p>Use during regular exercises (sets, holds, cardio)</p>
+          </div>
+        </div>
+        <div class="timer-panel">
+          <div class="timer-display" id="ex-timer-display">00:00</div>
+          <div class="mono tiny" id="ex-timer-mode" style="color:var(--primary-60);margin-top:4px">Stopwatch mode</div>
+          <div class="form-2" style="margin-top:14px">
+            <div class="field">
+              <label class="field-label" for="ex-timer-min">Minutes</label>
+              <input id="ex-timer-min" class="input" type="number" min="0" max="120" value="0" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="ex-timer-sec">Seconds</label>
+              <input id="ex-timer-sec" class="input" type="number" min="0" max="59" value="30" />
+            </div>
+          </div>
+          <div class="flex gap-xs wrap" style="margin-top:12px">
+            <button id="ex-timer-start" class="btn btn-sm" type="button">Start</button>
+            <button id="ex-timer-pause" class="btn btn-secondary btn-sm" type="button">Pause</button>
+            <button id="ex-timer-reset" class="btn btn-ghost btn-sm" type="button">Reset</button>
+            <button id="ex-timer-countdown" class="btn btn-ghost btn-sm" type="button">Set countdown</button>
+          </div>
+          <p class="body-sm" style="margin-top:10px">Set a countdown for timed holds/cardio, or use stopwatch. When countdown ends you’ll get a notification.</p>
+        </div>
+      </section>
+    </div>
+
+    <section class="module mt-md">
+      <div class="module-head">
+        <div>
+          <h2>Today’s training tasks</h2>
+          <p id="ex-tasks-sub">Complete all tasks to finish the day and progress toward the next level</p>
+        </div>
+        <span class="chip" id="ex-today-status">In progress</span>
+      </div>
+      <div id="ex-task-list" class="stack"></div>
+      <div class="notice mt-sm" id="ex-levelup-note" style="display:none"></div>
+    </section>
+
+    <section class="module mt-md">
+      <div class="module-head">
+        <div>
+          <h2>How leveling works</h2>
+          <p>Real progression based on completed exercise days</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card-plain">
+          <strong style="color:#fff">1. Do daily tasks</strong>
+          <p class="body-sm" style="margin-top:6px">Complete your breathing session and all regular exercises shown for today (use the timer as needed).</p>
+        </div>
+        <div class="card-plain">
+          <strong style="color:#fff">2. Finish required days</strong>
+          <p class="body-sm" style="margin-top:6px">Complete <b>all</b> tasks for ~2–3 days (depending on level) to level up your training.</p>
+        </div>
+        <div class="card-plain">
+          <strong style="color:#fff">3. Harder tasks, rewards</strong>
+          <p class="body-sm" style="margin-top:6px">Each new level increases difficulty (more cycles, reps, or time) and awards XP/gold to your main profile.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

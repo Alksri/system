@@ -1202,3 +1202,68 @@
   .ticker-track, .hero-ghost, .hero-ghost::before, .hero-ghost::after, .boot::after, .boot-mark { animation: none !important; }
   .reveal { opacity: 1; transform: none; }
 }
+
+
+/* --------------------------------------------------------------------------
+   Exercises page (breathing, timers, tasks)
+   -------------------------------------------------------------------------- */
+.breath-wrap {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 18px;
+  align-items: center;
+}
+.breath-visual {
+  position: relative;
+  width: min(100%, 320px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
+.breath-ring {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  border: 1px solid rgba(167,139,250,0.22);
+  box-shadow: 0 0 30px rgba(139,92,246,0.12), inset 0 0 30px rgba(139,92,246,0.06);
+}
+.breath-ring.ring-2 { inset: 0%; border-style: dashed; border-color: rgba(125,211,252,0.16); }
+.breath-core {
+  position: relative;
+  width: 58%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: radial-gradient(circle at 35% 30%, rgba(167,139,250,0.35), rgba(76,29,149,0.35) 45%, rgba(5,6,12,0.95) 100%);
+  border: 1px solid rgba(167,139,250,0.35);
+  box-shadow: 0 0 30px rgba(139,92,246,0.25), inset 0 0 24px rgba(139,92,246,0.15);
+  transition: transform 1.2s ease, box-shadow 1.2s ease, background 1.2s ease;
+  transform: scale(0.82);
+}
+.breath-core.inhale { transform: scale(1.08); box-shadow: 0 0 50px rgba(56,189,248,0.28), 0 0 80px rgba(139,92,246,0.22), inset 0 0 30px rgba(125,211,252,0.12); }
+.breath-core.hold { transform: scale(1.0); }
+.breath-core.exhale { transform: scale(0.78); box-shadow: 0 0 20px rgba(139,92,246,0.18), inset 0 0 18px rgba(139,92,246,0.10); }
+.breath-phase { font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: 0.04em; }
+.breath-count { font-family: var(--font-code, monospace); color: var(--primary-60); margin-top: 4px; }
+.breath-visual.inhale .breath-ring { border-color: rgba(125,211,252,0.35); }
+.breath-visual.exhale .breath-ring { border-color: rgba(167,139,250,0.18); }
+
+.timer-panel { text-align: center; }
+.timer-display {
+  font-family: var(--font-code, monospace);
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 24px rgba(139,92,246,0.35);
+}
+
+.ex-task.done { border-color: rgba(52,211,153,0.28); background: rgba(16,185,129,0.06); }
+
+@media (max-width: 900px) {
+  .breath-wrap { grid-template-columns: 1fr; }
+  .breath-visual { max-width: 280px; }
+}

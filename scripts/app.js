@@ -90,6 +90,13 @@
       reminders: [],
       checkIns: [],
       transformations: [],
+      exercises: {
+        level: 1,
+        completedDays: [],
+        daily: {},
+        totalSessions: 0,
+        lastDate: null
+      },
       createdAt: now,
       lastActiveAt: now
     };
@@ -118,6 +125,14 @@
     ['quests', 'reminders', 'checkIns', 'transformations'].forEach(function (key) {
       if (!Array.isArray(raw[key])) raw[key] = [];
     });
+
+    raw.exercises = raw.exercises && typeof raw.exercises === 'object' ? raw.exercises : {};
+    if (typeof raw.exercises.level !== 'number' || !isFinite(raw.exercises.level)) raw.exercises.level = defaults.exercises.level;
+    raw.exercises.level = Math.max(1, Math.floor(raw.exercises.level));
+    if (!Array.isArray(raw.exercises.completedDays)) raw.exercises.completedDays = [];
+    if (!raw.exercises.daily || typeof raw.exercises.daily !== 'object') raw.exercises.daily = {};
+    if (typeof raw.exercises.totalSessions !== 'number' || !isFinite(raw.exercises.totalSessions)) raw.exercises.totalSessions = 0;
+    raw.exercises.totalSessions = Math.max(0, Math.floor(raw.exercises.totalSessions));
 
     if (typeof raw.createdAt !== 'number') raw.createdAt = defaults.createdAt;
     if (typeof raw.fatigueAt !== 'number') raw.fatigueAt = Date.now();
@@ -395,7 +410,8 @@
       { label: 'BMI & Diet Plan', href: 'diet.html', page: 'diet' },
       { label: 'Food Database', href: 'foods.html', page: 'foods' },
       { label: 'Meal Calculator', href: 'nutrition.html', page: 'nutrition' }
-    ] }
+    ] },
+    { label: 'Exercises', href: 'exercises.html', page: 'exercises' }
   ];
 
   var BRAND_SVG =
@@ -493,9 +509,9 @@
             '<div class="footer-col"><h4>Dashboard</h4>' +
               '<a href="status.html">Status</a><a href="quests.html">Quests</a>' +
               '<a href="vision.html">Vision</a><a href="advisor.html">Advisor</a></div>' +
-            '<div class="footer-col"><h4>Nutrition</h4>' +
+            '<div class="footer-col"><h4>Nutrition &amp; Training</h4>' +
               '<a href="diet.html">BMI &amp; Diet Plan</a><a href="foods.html">Food Database</a>' +
-              '<a href="nutrition.html">Meal Calculator</a></div>' +
+              '<a href="nutrition.html">Meal Calculator</a><a href="exercises.html">Exercises</a></div>' +
           '</div>' +
           '<div class="footer-bottom">' +
             '<span>Fan-made productivity prototype. Solo Leveling is owned by Chugong &amp; Redice Studio.</span>' +
@@ -2461,6 +2477,371 @@
       planEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   };
+
+  /* ---------------------------- Exercises ------------------------------- */
+  function exerciseDaysRequired(level) {
+    // 2 days early on, 3 days as it gets harder
+    return level >= 3 ? 3 : 2;
+  }
+
+  function getExerciseProgram(level) {
+    var lv = Math.max(1, Math.min(20, Math.floor(level || 1)));
+    // Breathing patterns scale with level
+    var breath;
+    if (lv <= 1) breath = { name: 'Box Breathing (Calm)', phases: [{l:'Inhale',s:4},{l:'Hold',s:4},{l:'Exhale',s:4},{l:'Hold',s:4}], cycles: 4 };
+    else if (lv === 2) breath = { name: 'Box Breathing (Focus)', phases: [{l:'Inhale',s:4},{l:'Hold',s:4},{l:'Exhale',s:4},{l:'Hold',s:4}], cycles: 6 };
+    else if (lv === 3) breath = { name: 'Relaxing Breath 4-7-8', phases: [{l:'Inhale',s:4},{l:'Hold',s:7},{l:'Exhale',s:8},{l:'Hold',s:0}], cycles: 4 };
+    else if (lv === 4) breath = { name: 'Relaxing Breath 4-7-8', phases: [{l:'Inhale',s:4},{l:'Hold',s:7},{l:'Exhale',s:8},{l:'Hold',s:0}], cycles: 6 };
+    else if (lv === 5) breath = { name: 'Endurance Breath 5-5-5-5', phases: [{l:'Inhale',s:5},{l:'Hold',s:5},{l:'Exhale',s:5},{l:'Hold',s:5}], cycles: 6 };
+    else breath = { name: 'Advanced Breath ' + (4 + Math.min(2, Math.floor(lv/4))) + '-4-' + (6 + Math.min(4, lv-5)) + '-2', phases: [{l:'Inhale',s:4 + Math.min(2, Math.floor(lv/4))},{l:'Hold',s:4},{l:'Exhale',s:6 + Math.min(4, lv-5)},{l:'Hold',s:2}], cycles: 6 + Math.min(4, lv-5) };
+    breath.totalSeconds = breath.cycles * breath.phases.reduce(function(sum,p){ return sum + (p.s||0); }, 0);
+
+    // Regular exercises scale with level
+    var scale = lv;
+    var regular = [];
+    regular.push({ id: 'jumping-jacks', name: 'Jumping Jacks', target: (20 + scale * 10) + ' reps', timerSec: 0, tip: 'Warm-up cardio to raise heart rate.' });
+    regular.push({ id: 'squats', name: 'Bodyweight Squats', target: (10 + scale * 5) + ' reps', timerSec: 0, tip: 'Keep chest up, knees tracking over toes.' });
+    if (lv <= 2) regular.push({ id: 'incline-pushups', name: 'Incline / Knee Push-ups', target: (6 + scale * 3) + ' reps', timerSec: 0, tip: 'Controlled form, full range.' });
+    else regular.push({ id: 'pushups', name: 'Push-ups', target: (8 + scale * 4) + ' reps', timerSec: 0, tip: 'Straight body line, controlled tempo.' });
+    regular.push({ id: 'plank', name: 'Plank Hold', target: (20 + scale * 10) + ' sec', timerSec: 20 + scale * 10, tip: 'Engage core, keep hips level.' });
+    if (lv >= 2) regular.push({ id: 'lunges', name: 'Lunges', target: (8 + scale * 3) + ' reps each leg', timerSec: 0, tip: 'Step forward, lower with control.' });
+    if (lv >= 4) regular.push({ id: 'mountain-climbers', name: 'Mountain Climbers', target: (20 + scale * 5) + ' sec', timerSec: 20 + scale * 5, tip: 'Steady pace, core tight.' });
+    regular.push({ id: 'stretch', name: 'Cool-down Stretching', target: (60 + scale * 15) + ' sec', timerSec: 60 + scale * 15, tip: 'Slow breathing, stretch major muscle groups.' });
+
+    return { level: lv, breath: breath, regular: regular, daysRequired: exerciseDaysRequired(lv) };
+  }
+
+  Pages.exercises = function () {
+    var levelEl = document.getElementById('ex-level');
+    var levelDescEl = document.getElementById('ex-level-desc');
+    var levelChipEl = document.getElementById('ex-level-chip');
+    var dailyProgressEl = document.getElementById('ex-daily-progress');
+    var dailyNoteEl = document.getElementById('ex-daily-note');
+    var daysLeftEl = document.getElementById('ex-days-left');
+    var daysNoteEl = document.getElementById('ex-days-note');
+    var taskListEl = document.getElementById('ex-task-list');
+    var todayStatusEl = document.getElementById('ex-today-status');
+    var levelupNoteEl = document.getElementById('ex-levelup-note');
+
+    if (!levelEl || !taskListEl) return;
+
+    function ensureToday() {
+      var ex = Store.state.exercises;
+      var today = dayKey(Date.now());
+      if (!ex.daily[today]) {
+        ex.daily[today] = { tasks: {}, allDone: false, xpAwarded: false, date: today };
+      }
+      return ex.daily[today];
+    }
+
+    function getProgram() { return getExerciseProgram(Store.state.exercises.level); }
+
+    function isTaskDone(day, taskId) { return !!(day.tasks && day.tasks[taskId]); }
+
+    function allTasksDone(day, program) {
+      if (!isTaskDone(day, 'breath')) return false;
+      for (var i = 0; i < program.regular.length; i++) {
+        if (!isTaskDone(day, program.regular[i].id)) return false;
+      }
+      return true;
+    }
+
+    function countDone(day, program) {
+      var n = isTaskDone(day, 'breath') ? 1 : 0;
+      program.regular.forEach(function (t) { if (isTaskDone(day, t.id)) n++; });
+      return n;
+    }
+
+    function completedDaysAtCurrentLevel() {
+      var ex = Store.state.exercises;
+      var lvl = ex.level;
+      var count = 0;
+      (ex.completedDays || []).forEach(function (entry) {
+        if (entry && entry.level === lvl) count++;
+      });
+      return count;
+    }
+
+    function awardDayIfComplete() {
+      var ex = Store.state.exercises;
+      var day = ensureToday();
+      var program = getProgram();
+      if (!allTasksDone(day, program)) return { changed: false };
+      var changed = false;
+      if (!day.allDone) { day.allDone = true; changed = true; }
+      var today = dayKey(Date.now());
+      var already = (ex.completedDays || []).some(function (e) { return e && e.date === today && e.level === ex.level; });
+      if (!already) {
+        ex.completedDays.push({ date: today, level: ex.level, at: Date.now() });
+        ex.totalSessions = (ex.totalSessions || 0) + 1;
+        changed = true;
+      }
+      if (!day.xpAwarded) {
+        var xp = 30 + ex.level * 10;
+        var gold = 10 + ex.level * 5;
+        var levelsGained = addExp(Store.state, xp);
+        Store.state.gold = (Store.state.gold || 0) + gold;
+        day.xpAwarded = true;
+        changed = true;
+        var msg = 'Daily exercises complete! +' + xp + ' XP, +' + gold + ' gold.';
+        if (levelsGained > 0) msg += ' Hunter level up!';
+        toast('Training complete', msg);
+      }
+      // level up exercise when enough days completed at this level
+      var req = program.daysRequired;
+      var doneAtLevel = completedDaysAtCurrentLevel();
+      if (doneAtLevel >= req) {
+        ex.level += 1;
+        changed = true;
+        toast('Exercise level up!', 'You reached Exercise LV ' + ex.level + '. Tasks are now harder — keep going!');
+        if (levelupNoteEl) {
+          levelupNoteEl.style.display = '';
+          levelupNoteEl.innerHTML = '<div><strong>Level up!</strong> You reached <b>Exercise LV ' + ex.level + '</b>. Daily tasks are now harder (more reps/cycles/time). Complete all tasks for the next required days to level up again.</div>';
+        }
+      }
+      return { changed: changed, allDone: true };
+    }
+
+    function render() {
+      var ex = Store.state.exercises;
+      var program = getProgram();
+      var day = ensureToday();
+      var totalTasks = 1 + program.regular.length;
+      var doneCount = countDone(day, program);
+      var req = program.daysRequired;
+      var doneAtLevel = completedDaysAtCurrentLevel();
+      var left = Math.max(0, req - doneAtLevel);
+
+      levelEl.textContent = ex.level;
+      if (levelChipEl) levelChipEl.textContent = 'Exercise LV ' + ex.level;
+      if (levelDescEl) levelDescEl.textContent = 'Complete all daily tasks for ' + req + ' day' + (req > 1 ? 's' : '') + ' at this level to advance.';
+      if (dailyProgressEl) dailyProgressEl.textContent = doneCount + ' / ' + totalTasks;
+      if (dailyNoteEl) dailyNoteEl.textContent = allTasksDone(day, program) ? 'All tasks done today — great work!' : 'Tasks completed today';
+      if (daysLeftEl) daysLeftEl.textContent = left === 0 ? 'Level up ready!' : (left + ' day' + (left > 1 ? 's' : ''));
+      if (daysNoteEl) daysNoteEl.textContent = doneAtLevel + ' / ' + req + ' day(s) completed at LV ' + ex.level;
+      if (todayStatusEl) {
+        todayStatusEl.textContent = allTasksDone(day, program) ? 'Completed' : 'In progress';
+        todayStatusEl.className = 'chip' + (allTasksDone(day, program) ? ' chip-soft' : '');
+      }
+
+      // breathing labels
+      setText('breath-level-chip', 'LV ' + ex.level);
+      setText('breath-pattern-name', program.breath.name);
+      setText('breath-pattern-label', program.breath.name + ' · ' + program.breath.cycles + ' cycles');
+      setText('breath-cycles', '0 / ' + program.breath.cycles);
+      setText('breath-timer', '00:00 / ' + fmtTime(program.breath.totalSeconds));
+
+      var html = '';
+      html += renderTaskCard(day, 'breath', 'Breathing Session', program.breath.name + ' — ' + program.breath.cycles + ' cycles (~' + fmtTime(program.breath.totalSeconds) + ')', 'Use the guided breathing panel and timer above, then mark complete.', true);
+      program.regular.forEach(function (t) {
+        html += renderTaskCard(day, t.id, t.name, 'Target: ' + t.target, t.tip + (t.timerSec ? ' Use timer: ' + t.timerSec + 's.' : ''), false, t.timerSec);
+      });
+      taskListEl.innerHTML = html;
+
+      taskListEl.querySelectorAll('[data-task-toggle]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var id = btn.getAttribute('data-task-id');
+          var d = ensureToday();
+          d.tasks[id] = !d.tasks[id];
+          if (!d.tasks[id]) { d.allDone = false; }
+          awardDayIfComplete();
+          Store.save();
+          render();
+        });
+      });
+
+      taskListEl.querySelectorAll('[data-task-timer]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var sec = parseInt(btn.getAttribute('data-task-timer'), 10) || 30;
+          var minEl = document.getElementById('ex-timer-min');
+          var secEl = document.getElementById('ex-timer-sec');
+          if (minEl) minEl.value = Math.floor(sec / 60);
+          if (secEl) secEl.value = sec % 60;
+          if (typeof window.__exSetCountdown === 'function') window.__exSetCountdown(sec);
+          toast('Timer set', 'Countdown set to ' + fmtTime(sec) + '. Press Start in Exercise timer.');
+        });
+      });
+    }
+
+    function renderTaskCard(day, id, title, target, tip, isBreath, timerSec) {
+      var done = isTaskDone(day, id);
+      return '<div class="card ex-task' + (done ? ' done' : '') + '" style="padding:14px 16px">' +
+        '<div class="flex justify-between items-center" style="gap:12px;flex-wrap:wrap">' +
+          '<div style="min-width:0;flex:1">' +
+            '<div class="flex items-center gap-xs" style="flex-wrap:wrap"><strong style="color:#fff">' + escapeHtml(title) + '</strong>' + (isBreath ? '<span class="chip chip-soft" style="padding:3px 8px">Breathing</span>' : '') + '</div>' +
+            '<div class="mono tiny" style="margin-top:4px;color:var(--primary-60)">' + escapeHtml(target) + '</div>' +
+            '<div class="body-sm" style="margin-top:6px">' + escapeHtml(tip) + '</div>' +
+          '</div>' +
+          '<div class="flex gap-xs wrap" style="justify-content:flex-end">' +
+            (timerSec ? '<button class="btn btn-ghost btn-sm" type="button" data-task-timer="' + timerSec + '">Use timer</button>' : '') +
+            '<button class="btn btn-sm ' + (done ? 'btn-secondary' : '') + '" type="button" data-task-toggle="1" data-task-id="' + escapeHtml(id) + '">' + (done ? 'Completed ✓' : 'Mark complete') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // -------- Exercise countdown/stopwatch timer --------
+    (function initExerciseTimer() {
+      var display = document.getElementById('ex-timer-display');
+      var modeEl = document.getElementById('ex-timer-mode');
+      var minEl = document.getElementById('ex-timer-min');
+      var secEl = document.getElementById('ex-timer-sec');
+      var startBtn = document.getElementById('ex-timer-start');
+      var pauseBtn = document.getElementById('ex-timer-pause');
+      var resetBtn = document.getElementById('ex-timer-reset');
+      var cdBtn = document.getElementById('ex-timer-countdown');
+      if (!display) return;
+
+      var running = false, mode = 'countdown', remaining = 30, elapsed = 0, total = 30, last = 0, raf = 0;
+
+      function paint() {
+        if (mode === 'countdown') display.textContent = fmtTime(remaining);
+        else display.textContent = fmtTime(elapsed);
+        if (modeEl) modeEl.textContent = mode === 'countdown' ? ('Countdown · target ' + fmtTime(total)) : 'Stopwatch mode';
+      }
+      function setCountdown(sec) {
+        total = Math.max(1, Math.floor(sec || 30));
+        remaining = total; elapsed = 0; mode = 'countdown'; running = false; paint();
+      }
+      window.__exSetCountdown = setCountdown;
+
+      function tick(ts) {
+        if (!running) return;
+        if (!last) last = ts;
+        var dt = (ts - last) / 1000; last = ts;
+        if (mode === 'countdown') {
+          remaining -= dt;
+          if (remaining <= 0) { remaining = 0; running = false; paint(); toast('Timer finished', 'Your exercise countdown is complete.'); return; }
+        } else {
+          elapsed += dt;
+        }
+        paint();
+        raf = requestAnimationFrame(tick);
+      }
+      function start() { if (running) return; running = true; last = 0; raf = requestAnimationFrame(tick); }
+      function pause() { running = false; }
+      function reset() { running = false; if (mode === 'countdown') remaining = total; else elapsed = 0; paint(); }
+
+      if (startBtn) startBtn.addEventListener('click', start);
+      if (pauseBtn) pauseBtn.addEventListener('click', pause);
+      if (resetBtn) resetBtn.addEventListener('click', reset);
+      if (cdBtn) cdBtn.addEventListener('click', function () {
+        var m = parseInt(minEl && minEl.value, 10) || 0;
+        var s = parseInt(secEl && secEl.value, 10) || 0;
+        var sec = m * 60 + s;
+        if (sec <= 0) sec = 30;
+        setCountdown(sec);
+        toast('Countdown set', 'Timer set to ' + fmtTime(sec) + '.');
+      });
+
+      setCountdown(30);
+    })();
+
+    // -------- Guided breathing engine --------
+    (function initBreathing() {
+      var phaseEl = document.getElementById('breath-phase');
+      var countEl = document.getElementById('breath-count');
+      var timerEl = document.getElementById('breath-timer');
+      var cyclesEl = document.getElementById('breath-cycles');
+      var core = document.getElementById('breath-core');
+      var visual = document.getElementById('breath-visual');
+      var startBtn = document.getElementById('breath-start');
+      var pauseBtn = document.getElementById('breath-pause');
+      var resetBtn = document.getElementById('breath-reset');
+      var doneBtn = document.getElementById('breath-done');
+      if (!phaseEl || !core) return;
+
+      var running = false, raf = 0, last = 0, sessionElapsed = 0, phaseIndex = 0, phaseRemaining = 0, cyclesDone = 0, finished = false;
+
+      function program() { return getExerciseProgram(Store.state.exercises.level).breath; }
+
+      function setVisual(phase) {
+        core.classList.remove('inhale','hold','exhale');
+        if (visual) visual.classList.remove('inhale','hold','exhale');
+        var cls = 'hold';
+        if (/inhale/i.test(phase)) cls = 'inhale';
+        else if (/exhale/i.test(phase)) cls = 'exhale';
+        core.classList.add(cls);
+        if (visual) visual.classList.add(cls);
+      }
+
+      function paint() {
+        var p = program();
+        if (cyclesEl) cyclesEl.textContent = cyclesDone + ' / ' + p.cycles;
+        if (timerEl) timerEl.textContent = fmtTime(Math.floor(sessionElapsed)) + ' / ' + fmtTime(p.totalSeconds);
+        if (countEl) countEl.textContent = (running || phaseRemaining > 0) ? Math.ceil(Math.max(0, phaseRemaining)) + 's' : '—';
+      }
+
+      function resetSession() {
+        running = false; cancelAnimationFrame(raf); last = 0; sessionElapsed = 0; phaseIndex = 0; cyclesDone = 0; finished = false;
+        var p = program();
+        phaseRemaining = (p.phases[0] && p.phases[0].s) || 0;
+        phaseEl.textContent = 'Ready';
+        setVisual('hold');
+        paint();
+      }
+
+      function advancePhase() {
+        var p = program();
+        var guard = 0;
+        while (guard++ < 10) {
+          phaseIndex++;
+          if (phaseIndex >= p.phases.length) {
+            phaseIndex = 0; cyclesDone++;
+            if (cyclesDone >= p.cycles) {
+              finished = true; running = false; phaseEl.textContent = 'Complete';
+              setVisual('hold'); paint();
+              toast('Breathing complete', 'You completed ' + p.cycles + ' cycles. Mark the task complete.');
+              return;
+            }
+          }
+          var ph = p.phases[phaseIndex];
+          if (ph && ph.s > 0) { phaseRemaining = ph.s; phaseEl.textContent = ph.l; setVisual(ph.l); return; }
+        }
+      }
+
+      function startSession() {
+        if (finished) resetSession();
+        var p = program();
+        if (!running && sessionElapsed === 0 && cyclesDone === 0 && phaseIndex === 0 && phaseEl.textContent === 'Ready') {
+          var ph = p.phases[0];
+          while (ph && ph.s <= 0) { phaseIndex++; ph = p.phases[phaseIndex]; }
+          if (!ph) { finished = true; phaseEl.textContent = 'Complete'; paint(); return; }
+          phaseRemaining = ph.s; phaseEl.textContent = ph.l; setVisual(ph.l);
+        }
+        if (running) return;
+        running = true; last = 0; raf = requestAnimationFrame(tick);
+      }
+
+      function tick(ts) {
+        if (!running) return;
+        if (!last) last = ts;
+        var dt = Math.min(0.2, (ts - last) / 1000); last = ts;
+        sessionElapsed += dt;
+        phaseRemaining -= dt;
+        if (phaseRemaining <= 0) advancePhase();
+        paint();
+        if (running) raf = requestAnimationFrame(tick);
+      }
+
+      if (startBtn) startBtn.addEventListener('click', startSession);
+      if (pauseBtn) pauseBtn.addEventListener('click', function () { running = false; });
+      if (resetBtn) resetBtn.addEventListener('click', resetSession);
+      if (doneBtn) doneBtn.addEventListener('click', function () {
+        var day = ensureToday();
+        day.tasks['breath'] = true;
+        awardDayIfComplete();
+        Store.save();
+        render();
+        toast('Breathing task', 'Breathing session marked complete for today.');
+      });
+
+      resetSession();
+    })();
+
+    render();
+  };
+
 
   /* ----------------------------------------------------------------------
      Boot

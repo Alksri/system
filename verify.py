@@ -39,7 +39,7 @@ print(f"Pages found: {len(pages)} -> {sorted(pages)}")
 protected = [
     "index.html", "awakening.html", "extraction.html", "arise.html", "army.html",
     "status.html", "quests.html", "vision.html", "advisor.html", "progress.html",
-    "inventory.html", "diet.html", "foods.html", "nutrition.html",
+    "inventory.html", "diet.html", "foods.html", "nutrition.html", "exercises.html",
 ]
 
 # 4. Protected page checks
@@ -110,6 +110,7 @@ page_ids = {
     "diet.html": ["bmi-form", "bmi-age", "bmi-height", "bmi-weight", "bmi-result", "diet-plan"],
     "foods.html": ["food-list", "food-search", "food-category", "food-grams"],
     "nutrition.html": ["meal-name", "meal-search", "meal-item", "meal-grams", "meal-add", "meal-rows", "meal-totals"],
+    "exercises.html": ["ex-level", "ex-daily-progress", "breath-core", "breath-start", "ex-timer-display", "ex-task-list"],
 }
 
 for page, needed in page_ids.items():
@@ -133,8 +134,8 @@ frames = glob.glob("ezgif-frame-*.jpg")
 if len(frames) != 270:
     errors.append(f"expected 270 frame images, found {len(frames)}")
 
-# 9. Nutrition data & new pages assets
-for f in ["scripts/nutrition-data.js", "diet.html", "foods.html", "nutrition.html"]:
+# 9. Nutrition/training data & new pages assets
+for f in ["scripts/nutrition-data.js", "diet.html", "foods.html", "nutrition.html", "exercises.html"]:
     if not os.path.exists(f):
         errors.append(f"missing file {f}")
 
