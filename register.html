@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register — System Portal</title>
+  <meta name="description" content="Register your hunter profile: name, Gmail, gender, age, height and weight. We email you a one-time code, then you pick a password." />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/auth.css" />
+  <link rel="stylesheet" href="styles/register.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <meta name="theme-color" content="#05060c" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="System Portal" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+</head>
+<body class="auth-body">
+  <aside class="auth-visual">
+    <div class="auth-scanline" aria-hidden="true"></div>
+    <div class="auth-orbs" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+    </div>
+
+    <div class="auth-visual-inner">
+      <a class="brand auth-brand" href="login.html" aria-label="System Portal">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 3 4.5 7v10L12 21l7.5-4V7L12 3Z" stroke="url(#abg)" stroke-width="1.4"/>
+            <path d="M12 7.2v9.6M8.4 10.1 12 7.2l3.6 2.9" stroke="#e9d5ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8.4 13.9 12 16.8l3.6-2.9" stroke="#7dd3fc" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="abg" x1="4" y1="3" x2="20" y2="21"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#38bdf8"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand-name">
+          <span class="brand-word">System</span>
+          <span class="brand-word alt">Portal</span>
+        </span>
+      </a>
+
+      <div class="auth-copy">
+        <span class="chip auth-chip" style="margin-bottom:18px"><span class="dot dot-live"></span>Hunter registration</span>
+        <h1 class="display auth-hero-title">
+          <span class="hero-line">ARISE.</span>
+          <span class="hero-line gradient-text">Register your profile.</span>
+        </h1>
+        <p>The System needs to know who you are before it can rank you. Tell us your name, gender, age, height and weight, we email a one-time code to your Gmail, and then you lock it all behind a password.</p>
+        <figure class="reg-step-list" aria-label="Registration steps">
+          <div class="reg-step-item" id="reg-indicator-1"><span>01</span>Hunter profile<small>name · Gmail · age · body metrics</small></div>
+          <div class="reg-step-item" id="reg-indicator-2"><span>02</span>Email verification<small>one-time code to your inbox</small></div>
+          <div class="reg-step-item" id="reg-indicator-3"><span>03</span>Set your password<small>lock the account down</small></div>
+        </figure>
+      </div>
+
+      <div class="auth-visual-foot">
+        <span>Verified Gmail required</span>
+        <span>Works on web + Android app</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="auth-panel">
+    <div class="auth-card reg-card">
+      <span class="kicker">Hunter registration</span>
+      <h2 class="auth-title" id="reg-title">Register your profile</h2>
+      <div class="reg-progress" aria-hidden="true"><span class="reg-progress-fill" id="reg-progress-fill"></span></div>
+
+      <form class="auth-form reg-step" id="reg-step-1" novalidate>
+        <div class="form-2">
+          <div class="field">
+            <label class="field-label" for="reg-name">Full name</label>
+            <input id="reg-name" class="input" type="text" placeholder="e.g. Jin-Woo Sung" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-gender">Gender</label>
+            <select id="reg-gender" class="select" required>
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-email">Gmail <span class="auth-hint">verification code goes here</span></label>
+          <input id="reg-email" class="input" type="email" placeholder="you@gmail.com" autocomplete="email" autocapitalize="off" spellcheck="false" required />
+        </div>
+
+        <div class="form-2">
+          <div class="field">
+            <label class="field-label" for="reg-dob">Date of birth</label>
+            <input id="reg-dob" class="input" type="date" required />
+            <div class="auth-hint" id="reg-age-hint" hidden>Age: <span id="reg-age-value"></span> years old</div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-height">Height (cm)</label>
+            <input id="reg-height" class="input" type="number" min="100" max="250" step="0.1" placeholder="e.g. 175" required />
+          </div>
+        </div>
+
+        <div class="form-2">
+          <div class="field">
+            <label class="field-label" for="reg-weight">Weight (kg)</label>
+            <input id="reg-weight" class="input" type="number" min="25" max="300" step="0.1" placeholder="e.g. 68" required />
+          </div>
+          <div class="field">
+            <label class="field-label" for="reg-activity">Activity level</label>
+            <select id="reg-activity" class="select">
+              <option value="sedentary">Sedentary</option>
+              <option value="light">Light</option>
+              <option value="moderate" selected>Moderate</option>
+              <option value="active">Active</option>
+              <option value="very">Very active</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="reg-goal">Primary goal</label>
+          <select id="reg-goal" class="select">
+            <option value="lose">Lose fat / reach healthy weight</option>
+            <option value="maintain" selected>Maintain / become fit</option>
+            <option value="gain">Gain muscle / healthy weight</option>
+          </select>
+        </div>
+
+        <div class="auth-error" id="reg-error-1" role="alert"></div>
+        <button class="btn btn-block" type="submit" id="reg-send-otp">Send verification code</button>
+      </form>
+
+      <form class="auth-form reg-step" id="reg-step-2" hidden novalidate>
+        <p class="reg-otp-copy">A one-time code was sent to<br><strong id="reg-otp-email">you@gmail.com</strong></p>
+        <div class="reg-otp" id="reg-otp" role="group" aria-label="6 digit verification code">
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2" />
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3" />
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4" />
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5" />
+          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6" />
+        </div>
+        <div class="auth-error" id="reg-error-2" role="alert"></div>
+        <button class="btn btn-block" type="submit" id="reg-verify">Verify code</button>
+        <div class="reg-otp-foot">
+          <button type="button" class="btn btn-ghost btn-sm" id="reg-resend">Resend code</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="reg-change-email">Use a different Gmail</button>
+        </div>
+        <p class="auth-hint">The code expires in 10 minutes. Check spam/promotions if it is missing.</p>
+      </form>
+
+      <form class="auth-form reg-step" id="reg-step-3" hidden novalidate>
+        <p class="reg-otp-copy">Email verified. Lock <strong id="reg-lock-email">you@gmail.com</strong> down.</p>
+        <div class="field">
+          <label class="field-label" for="reg-password">Password <span class="auth-hint">8+ chars · letters &amp; numbers</span></label>
+          <input id="reg-password" class="input" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8" required />
+        </div>
+        <div class="reg-strength" aria-hidden="true"><span id="reg-strength-fill"></span></div>
+        <ul class="reg-rules" id="reg-rules">
+          <li data-rule="length">At least 8 characters</li>
+          <li data-rule="letter">Contains letters</li>
+          <li data-rule="number">Contains a number</li>
+        </ul>
+        <div class="field">
+          <label class="field-label" for="reg-confirm">Confirm password</label>
+          <input id="reg-confirm" class="input" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8" required />
+        </div>
+        <div class="auth-error" id="reg-error-3" role="alert"></div>
+        <button class="btn btn-block" type="submit" id="reg-finish">Complete registration</button>
+      </form>
+
+      <div class="reg-success" id="reg-success" hidden>
+        <div class="reg-success-mark" aria-hidden="true">✓</div>
+        <h2 class="auth-title">ARISE, <span id="reg-welcome-name">Hunter</span>.</h2>
+        <p>Your hunter profile is registered and this device is signed in. Your stats, quests and progress are stored under your account — on this device.</p>
+        <button class="btn btn-block" type="button" id="reg-enter">Enter the System</button>
+      </div>
+
+      <div class="auth-note" id="reg-note">
+        <strong>Privacy</strong>
+        Your profile (name, gender, age, height, weight) is stored on this device and, once you set a password, on the System Portal server keyed to your Gmail. We never share it or sell it.
+      </div>
+
+      <p class="auth-foot">Already registered? <a href="login.html" class="link">Sign in instead</a></p>
+    </div>
+  </main>
+
+  <script src="scripts/register.js"></script>
+</body>
+</html>

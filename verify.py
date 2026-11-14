@@ -14,7 +14,7 @@ def read(p):
         return f.read()
 
 # 1. JS syntax check
-for js in ["scripts/app.js", "scripts/auth.js", "scripts/login.js", "scripts/config.js"]:
+for js in ["scripts/app.js", "scripts/auth.js", "scripts/login.js", "scripts/register.js", "scripts/config.js"]:
     if not os.path.exists(js):
         errors.append(f"missing file {js}")
         continue

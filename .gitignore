@@ -1,0 +1,7 @@
+.netlify/
+node_modules/
+system-portal-netlify.zip
+SystemPortal.apk
+android/build/
+android/dist/
+android/keystore/

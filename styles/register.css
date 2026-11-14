@@ -1,0 +1,182 @@
+/* ==========================================================================
+   System Portal — Registration wizard pieces (on top of auth.css)
+   ========================================================================== */
+.reg-card {
+  width: 100%;
+}
+
+.reg-progress {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  overflow: hidden;
+  margin: 12px 0 18px;
+}
+.reg-progress-fill {
+  display: block;
+  height: 100%;
+  width: 33.333%;
+  background: linear-gradient(90deg, #8b5cf6, #38bdf8);
+  border-radius: inherit;
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reg-step-list {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  margin: 22px 0 0;
+  padding: 0;
+}
+.reg-step-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-left: 3px solid rgba(148, 163, 184, 0.22);
+  border-radius: 12px;
+  background: rgba(15, 17, 32, 0.55);
+  font-size: 13px;
+  color: #9aa4c6;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+}
+.reg-step-item span {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #6d7aa5;
+}
+.reg-step-item small {
+  font-size: 11px;
+  color: #69739a;
+  margin-left: auto;
+}
+.reg-step-item.active {
+  border-left-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.12);
+  color: #e9edfb;
+}
+.reg-step-item.active span { color: #c4b5fd; }
+.reg-step-item.done {
+  border-left-color: #34d399;
+  color: #8ff0c1;
+}
+.reg-step-item.done span { color: #34d399; }
+
+.reg-otp-copy {
+  margin: 2px 0 14px;
+  color: #b9c2dc;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.reg-otp-copy strong { color: #fff; word-break: break-all; }
+
+.reg-otp {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin: 4px 0 14px;
+}
+.otp-digit {
+  width: 100%;
+  max-width: 56px;
+  height: 62px;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+  background: #0d1020;
+  border: 1px solid #232744;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.otp-digit:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.28);
+}
+.otp-digit:not(:placeholder-shown) { border-color: #3a2c63; }
+
+.reg-otp-foot {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.reg-otp-foot .btn { flex: 1; }
+
+.reg-strength {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.14);
+  overflow: hidden;
+  margin: -4px 0 12px;
+}
+.reg-strength span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: #f87171;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+.reg-strength span.mid { background: #fbbf24; }
+.reg-strength span.ok { background: #34d399; }
+
+.reg-rules {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0 0 14px;
+  padding: 0;
+  font-size: 12px;
+  color: #8b93b8;
+}
+.reg-rules li {
+  position: relative;
+  padding-left: 20px;
+}
+.reg-rules li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid #3a3f63;
+}
+.reg-rules li.met { color: #8ff0c1; }
+.reg-rules li.met::before {
+  border-color: #34d399;
+  background: rgba(52, 211, 153, 0.18);
+}
+
+.reg-success {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+.reg-success-mark {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  color: #05060c;
+  background: radial-gradient(circle, #34d399, #059669);
+  box-shadow: 0 0 40px rgba(52, 211, 153, 0.35);
+}
+.reg-success .auth-title { margin-bottom: 10px; }
+.reg-success p { color: #b9c2dc; margin: 0 0 18px; font-size: 14px; line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .reg-otp { gap: 6px; }
+  .otp-digit { height: 54px; font-size: 22px; border-radius: 10px; }
+  .reg-otp-foot { flex-direction: column; }
+  .reg-step-item small { display: none; }
+}

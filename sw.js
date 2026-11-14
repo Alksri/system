@@ -1,13 +1,17 @@
-﻿const CACHE_VERSION = 'system-portal-v1';
+﻿const CACHE_VERSION = 'system-portal-v3';
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
+  './register.html',
   './scripts/app.js',
   './scripts/auth.js',
   './scripts/config.js',
   './scripts/login.js',
+  './scripts/register.js',
+  './styles/register.css',
   './scripts/nutrition-data.js',
+  './vendor/jspdf.umd.min.js',
   './styles/design-system.css',
   './styles/pages.css',
   './styles/auth.css',

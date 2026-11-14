@@ -71,11 +71,11 @@
     <div class="auth-card">
       <span class="kicker">Hunter authentication</span>
       <h2 class="auth-title" id="auth-title">Welcome back</h2>
-      <p class="auth-sub" id="auth-sub">Sign in with Google, or use a local account stored in this browser.</p>
+      <p class="auth-sub" id="auth-sub">Sign in with Google, or use the account you registered.</p>
 
       <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
         <button type="button" class="auth-tab active" id="tab-signin" role="tab" aria-selected="true">Sign in</button>
-        <button type="button" class="auth-tab" id="tab-signup" role="tab" aria-selected="false">Create account</button>
+        <a class="auth-tab auth-tab-link" id="tab-signup" href="register.html">Create account</a>
       </div>
 
       <div class="gsi-slot" id="gsi-slot"></div>
@@ -94,11 +94,6 @@
       <div class="auth-divider" id="auth-divider">or use email</div>
 
       <form class="auth-form" id="auth-form" novalidate>
-        <div class="field" id="auth-name-field" hidden>
-          <label class="field-label" for="auth-name">Display name</label>
-          <input id="auth-name" class="input" type="text" name="name" placeholder="e.g. Jin-Woo" autocomplete="name" />
-        </div>
-
         <div class="field">
           <label class="field-label" for="auth-email">Email</label>
           <input id="auth-email" class="input" type="email" name="email" placeholder="you@example.com" autocomplete="email" required />
@@ -127,7 +122,7 @@
 
       <div class="auth-note">
         <strong>How accounts work here</strong>
-        This is a static site with no backend. Local passwords are hashed with PBKDF2-SHA-256 (210,000 iterations) and a unique salt before being stored in this browser. Sessions expire after <span id="auth-hours">12</span> hours. Data never leaves this device.
+        Registration asks for your name, gender, age, height and weight, then emails a one-time code to your Gmail before you pick a password. Passwords are hashed with PBKDF2-SHA-256 (210,000 iterations) with a unique salt. Your mirrored credentials and all progress are stored only on this device; sessions expire after <span id="auth-hours">12</span> hours. Data never leaves this device.
       </div>
 
       <p class="auth-foot">

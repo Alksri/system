@@ -44,6 +44,14 @@
     return;
   }
 
+  // Inside the Android app: local accounts are the offline path, so drop the
+  // web-only Google setup card and use device wording.
+  var nativeApp = false;
+  try {
+    nativeApp = !!(window.SystemAppBridge && window.SystemAppBridge.isApp && window.SystemAppBridge.isApp());
+  } catch (e) { nativeApp = false; }
+  if (nativeApp) document.documentElement.classList.add('native-android');
+
   /* ---- Visual animation (particles) ------------------------------------ */
   (function initAuthCanvas() {
     var canvas = document.getElementById('auth-canvas');
@@ -154,21 +162,18 @@
       els.tabUp.classList.toggle('active', signup);
       els.tabUp.setAttribute('aria-selected', String(signup));
     }
-    if (els.nameField) els.nameField.hidden = !signup;
-    if (els.name) els.name.required = signup;
-    if (els.title) els.title.textContent = signup ? 'Create your profile' : 'Welcome back';
+    if (els.nameField) els.nameField.hidden = true;
+    if (els.title) els.title.textContent = 'Welcome back';
     if (els.sub) {
-      els.sub.textContent = signup
-        ? 'A local account keeps your quests and stats separate from anyone else using this browser.'
-        : 'Sign in with Google, or use a local account stored in this browser.';
+      els.sub.textContent = nativeApp
+        ? 'Sign in with your account. App sign-in works offline too.'
+        : 'Sign in with Google, or use the account you registered.';
     }
     if (els.password) {
-      els.password.autocomplete = signup ? 'new-password' : 'current-password';
+      els.password.autocomplete = 'current-password';
     }
     if (els.passHint) {
-      els.passHint.textContent = signup
-        ? 'At least 8 characters'
-        : 'Hashed with PBKDF2-SHA-256';
+      els.passHint.textContent = 'Hashed with PBKDF2-SHA-256';
     }
     if (els.submit) els.submit.textContent = signup ? 'Create account' : 'Sign in';
     clearMessage();
@@ -188,7 +193,6 @@
       clearMessage();
 
       var payload = {
-        name: (els.name && els.name.value) || '',
         email: (els.email && els.email.value) || '',
         password: (els.password && els.password.value) || ''
       };
@@ -198,9 +202,7 @@
 
       setBusy(true);
       try {
-        var result = mode === 'signup'
-          ? await SystemAuth.signUpLocal(payload)
-          : await SystemAuth.signInLocal(payload);
+        var result = await SystemAuth.smartSignIn(payload);
 
         if (!result.ok) {
           setBusy(false);
@@ -283,4 +285,10 @@
 
   setMode('signin');
   initGoogle();
+
+  // Native shell: no Google card, and the device never mentions a browser.
+  if (nativeApp) {
+    if (els.googleNote) els.googleNote.hidden = true;
+    if (els.slot) els.slot.hidden = true;
+  }
 })();

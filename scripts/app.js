@@ -386,8 +386,17 @@
     }, 4200);
   }
 
-  function emptyState(mark, title, copy, actionHtml) {
-    return '<div class="empty-state">' +
+  // Keep the phone screen awake while a timer is running inside the native app.
+  function setScreenAwake(on) {
+    try {
+      if (window.SystemAppBridge && typeof window.SystemAppBridge.keepAwake === 'function') {
+        window.SystemAppBridge.keepAwake(!!on);
+      }
+    } catch (e) { /* bridge is only present in the Android app */ }
+  }
+  window.addEventListener('pagehide', function () { setScreenAwake(false); });
+
+  function emptyState(mark, title, copy, actionHtml) {    return '<div class="empty-state">' +
       '<div class="empty-mark">' + mark + '</div>' +
       '<div class="empty-title">' + escapeHtml(title) + '</div>' +
       '<p class="empty-copy">' + escapeHtml(copy) + '</p>' +
@@ -2226,6 +2235,28 @@
 
     var lastPlan = null;
 
+    // Prefill from the hunter's registration profile when available.
+    (function prefillFromProfile() {
+      try {
+        var user = window.SystemAuth && window.SystemAuth.currentUser && window.SystemAuth.currentUser();
+        if (!user) return;
+        var profile = window.SystemAuth && window.SystemAuth.getProfile && window.SystemAuth.getProfile(user.email);
+        if (!profile) return;
+        var ageEl = document.getElementById('bmi-age');
+        var sexEl = document.getElementById('bmi-sex');
+        var heightEl = document.getElementById('bmi-height');
+        var weightEl = document.getElementById('bmi-weight');
+        var activityEl = document.getElementById('bmi-activity');
+        var goalEl = document.getElementById('bmi-goal');
+        if (ageEl && profile.age) ageEl.value = profile.age;
+        if (sexEl && (profile.gender === 'male' || profile.gender === 'female')) sexEl.value = profile.gender;
+        if (heightEl && profile.heightCm) heightEl.value = profile.heightCm;
+        if (weightEl && profile.weightKg) weightEl.value = profile.weightKg;
+        if (activityEl && profile.activity) activityEl.value = profile.activity;
+        if (goalEl && profile.goal) goalEl.value = profile.goal;
+      } catch (e) { /* prefill is a nicety, never a failure */ }
+    })();
+
     function round1(n) { return Math.round(n * 10) / 10; }
     function clamp(n, a, b) { return Math.min(b, Math.max(a, n)); }
 
@@ -2483,6 +2514,15 @@
       para('Note: BMI, BMR (Mifflin–St Jeor) and targets are estimates for general guidance, not medical advice. Consult a qualified professional for personalised care.', 8, [120,130,160]);
 
       var safeName = 'diet-plan-' + (new Date().toISOString().slice(0,10)) + '.pdf';
+      if (window.SystemAppBridge && typeof window.SystemAppBridge.savePdf === 'function') {
+        try {
+          window.SystemAppBridge.savePdf(doc.output('datauristring'), safeName);
+          toast('PDF saved', 'Your diet plan was saved in Downloads as ' + safeName);
+          return;
+        } catch (err) {
+          // Fall through to the browser download path.
+        }
+      }
       doc.save(safeName);
       toast('PDF downloaded', 'Your diet plan was saved as ' + safeName);
     }
@@ -2770,16 +2810,16 @@
         var dt = (ts - last) / 1000; last = ts;
         if (mode === 'countdown') {
           remaining -= dt;
-          if (remaining <= 0) { remaining = 0; running = false; paint(); toast('Timer finished', 'Your exercise countdown is complete.'); return; }
+          if (remaining <= 0) { remaining = 0; running = false; setScreenAwake(false); paint(); toast('Timer finished', 'Your exercise countdown is complete.'); return; }
         } else {
           elapsed += dt;
         }
         paint();
         raf = requestAnimationFrame(tick);
       }
-      function start() { if (running) return; running = true; last = 0; raf = requestAnimationFrame(tick); }
-      function pause() { running = false; }
-      function reset() { running = false; if (mode === 'countdown') remaining = total; else elapsed = 0; paint(); }
+      function start() { if (running) return; running = true; last = 0; setScreenAwake(true); raf = requestAnimationFrame(tick); }
+      function pause() { running = false; setScreenAwake(false); }
+      function reset() { running = false; setScreenAwake(false); if (mode === 'countdown') remaining = total; else elapsed = 0; paint(); }
 
       if (startBtn) startBtn.addEventListener('click', start);
       if (pauseBtn) pauseBtn.addEventListener('click', pause);
@@ -2833,6 +2873,7 @@
 
       function resetSession() {
         running = false; cancelAnimationFrame(raf); last = 0; sessionElapsed = 0; phaseIndex = 0; cyclesDone = 0; finished = false;
+        setScreenAwake(false);
         var p = program();
         phaseRemaining = (p.phases[0] && p.phases[0].s) || 0;
         phaseEl.textContent = 'Ready';
@@ -2848,7 +2889,7 @@
           if (phaseIndex >= p.phases.length) {
             phaseIndex = 0; cyclesDone++;
             if (cyclesDone >= p.cycles) {
-              finished = true; running = false; phaseEl.textContent = 'Complete';
+              finished = true; running = false; setScreenAwake(false); phaseEl.textContent = 'Complete';
               setVisual('hold'); paint();
               toast('Breathing complete', 'You completed ' + p.cycles + ' cycles. Mark the task complete.');
               return;
@@ -2869,7 +2910,7 @@
           phaseRemaining = ph.s; phaseEl.textContent = ph.l; setVisual(ph.l);
         }
         if (running) return;
-        running = true; last = 0; raf = requestAnimationFrame(tick);
+        running = true; last = 0; setScreenAwake(true); raf = requestAnimationFrame(tick);
       }
 
       function tick(ts) {
@@ -2884,9 +2925,10 @@
       }
 
       if (startBtn) startBtn.addEventListener('click', startSession);
-      if (pauseBtn) pauseBtn.addEventListener('click', function () { running = false; });
+      if (pauseBtn) pauseBtn.addEventListener('click', function () { running = false; setScreenAwake(false); });
       if (resetBtn) resetBtn.addEventListener('click', resetSession);
       if (doneBtn) doneBtn.addEventListener('click', function () {
+        setScreenAwake(false);
         var day = ensureToday();
         day.tasks['breath'] = true;
         awardDayIfComplete();
@@ -2972,7 +3014,7 @@
       var dt = (ts - last) / 1000; last = ts;
       remaining -= dt;
       if (remaining <= 0) {
-        remaining = 0; running = false; paintTimer();
+        remaining = 0; running = false; setScreenAwake(false); paintTimer();
         if (labelEl) labelEl.textContent = 'Session finished';
         toast('Study timer finished', 'Your focus session is complete. You can mark it as completed.');
         addSystemChat('⏰ Timer finished for "' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session') + '".');
@@ -2986,13 +3028,13 @@
       if (running) return;
       if (remaining <= 0) setDuration(getDurationSec() || total);
       if (!startedAt) startedAt = Date.now();
-      running = true; last = 0;
+      running = true; last = 0; setScreenAwake(true);
       if (labelEl) labelEl.textContent = 'Focusing on: ' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session');
       paintTimer();
       raf = requestAnimationFrame(tick);
     }
-    function pauseTimer() { running = false; if (labelEl && remaining > 0) labelEl.textContent = 'Paused'; paintTimer(); }
-    function resetTimer() { running = false; setDuration(getDurationSec() || total); }
+    function pauseTimer() { running = false; setScreenAwake(false); if (labelEl && remaining > 0) labelEl.textContent = 'Paused'; paintTimer(); }
+    function resetTimer() { running = false; setScreenAwake(false); setDuration(getDurationSec() || total); }
 
     if (startBtn) startBtn.addEventListener('click', startTimer);
     if (pauseBtn) pauseBtn.addEventListener('click', pauseTimer);
@@ -3016,7 +3058,7 @@
       addSystemChat('✅ Session logged: ' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session') + ' (' + fmtClock(spent) + ').');
       toast('Session saved', 'Study session added to history.');
       renderHistory();
-      running = false; setDuration(getDurationSec() || total);
+      running = false; setScreenAwake(false); setDuration(getDurationSec() || total);
     });
 
     document.querySelectorAll('.study-preset').forEach(function (btn) {

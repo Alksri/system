@@ -328,6 +328,114 @@
     return startSession(users[email]);
   }
 
+  /* ---- online accounts (email OTP registration) -------------------------------- */
+
+  var PROFILE_KEY = 'system_portal_profile_v1_';
+  var API_URL = '/.netlify/functions/auth';
+
+  function profileKey(email) {
+    return PROFILE_KEY + normaliseEmail(email);
+  }
+
+  function saveProfile(email, profile) {
+    return writeJSON(profileKey(email), profile || null);
+  }
+
+  function getProfile(email) {
+    if (!email) return null;
+    var p = readJSON(profileKey(email), null);
+    return p && p.email ? p : null;
+  }
+
+  function apiPost(payload) {
+    try {
+      return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload || {})
+      }).then(function (res) {
+        return res.json().catch(function () {
+          return { ok: false, error: 'The server returned an unreadable response.' };
+        });
+      }, function () {
+        return { ok: false, error: 'Could not reach the registration server. Check your connection and try again.' };
+      });
+    } catch (e) {
+      return Promise.resolve({ ok: false, error: 'This device cannot contact the registration server.' });
+    }
+  }
+
+  // Used by register.html for the three-step flow.
+  function sendOtp(profile) {
+    return apiPost({ action: 'send-otp', profile: profile });
+  }
+
+  function verifyOtp(email, code) {
+    return apiPost({ action: 'verify-otp', email: normaliseEmail(email), code: String(code || '').trim() });
+  }
+
+  // Creates the account on the server, then mirrors it locally so the same
+  // credentials work offline on this device too.
+  async function completeRegistration(input) {
+    var email = normaliseEmail(input && input.email);
+    var password = String((input && input.password) || '');
+    var res = await apiPost({ action: 'complete', email: email, password: password });
+    if (!res || !res.ok || !res.user) return res || { ok: false, error: 'Registration failed.' };
+    var user = res.user;
+    await mirrorOnlineAccount(user, password);
+    saveProfile(email, user);
+    return {
+      ok: true,
+      session: startSession({ email: email, name: user.name, picture: '', provider: 'online' }),
+      user: user
+    };
+  }
+
+  async function signInRemote(input) {
+    var email = normaliseEmail(input && input.email);
+    var password = String((input && input.password) || '');
+    var res = await apiPost({ action: 'login', email: email, password: password });
+    if (!res || !res.ok || !res.user) return res || { ok: false, error: 'Sign-in failed.' };
+    var user = res.user;
+    await mirrorOnlineAccount(user, password);
+    saveProfile(email, user);
+    return {
+      ok: true,
+      session: startSession({ email: email, name: user.name, picture: '', provider: 'online' }),
+      user: user
+    };
+  }
+
+  // Server-verified password, mirrored to localStorage so the same password works offline.
+  async function mirrorOnlineAccount(user, password) {
+    var email = normaliseEmail(user && user.email);
+    if (!email) return;
+    if (!hasWebCrypto()) return;
+    var salt = randomSalt();
+    var hash = await derive(String(password || ''), salt);
+    var users = getUsers();
+    users[email] = {
+      email: email,
+      name: user.name || email,
+      provider: 'online',
+      salt: salt,
+      hash: hash,
+      iterations: PBKDF2_ITERATIONS,
+      createdAt: user.createdAt || Date.now()
+    };
+    saveUsers(users);
+  }
+
+  // Local-first sign in with server fallback (new device / account synced from the site).
+  async function smartSignIn(input) {
+    var local = await signInLocal(input || {});
+    if (local && local.ok) return local;
+    var remote = await signInRemote(input || {});
+    if (remote && remote.ok) return remote;
+    if (remote && remote.error && !/unreadable|reach the registration/i.test(remote.error)) return remote;
+    return local;
+  }
+
   /* ---- session sync across tabs ---------------------------------------- */
 
   window.addEventListener('storage', function (event) {
@@ -350,6 +458,13 @@
     safeNext: safeNext,
     signUpLocal: signUpLocal,
     signInLocal: signInLocal,
+    signInRemote: signInRemote,
+    smartSignIn: smartSignIn,
+    sendOtp: sendOtp,
+    verifyOtp: verifyOtp,
+    completeRegistration: completeRegistration,
+    saveProfile: saveProfile,
+    getProfile: getProfile,
     signInWithGoogleCredential: signInWithGoogleCredential,
     googleConfigured: googleConfigured,
     googleClientId: googleClientId,
