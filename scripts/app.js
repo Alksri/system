@@ -514,7 +514,22 @@
     var toggle = document.getElementById('nav-toggle');
     var links = document.getElementById('nav-links');
     if (toggle && links) {
-      toggle.addEventListener('click', function () { links.classList.toggle('open'); });
+      toggle.addEventListener('click', function () {
+        var open = links.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      links.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          links.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+      window.addEventListener('resize', function () {
+        if (window.innerWidth > 960) {
+          links.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
     }
 
     // Global animated "ARISE" ambience on all pages
@@ -559,17 +574,21 @@
     var total = endFrame - startFrame + 1;
     var images = new Array(total);
     var loaded = 0;
+    var requested = new Array(total);
     var index = 0;
     var acc = 0;
     var last = 0;
+    var isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     var playing = !REDUCED;
     var inView = true;
-    var fps = opts.fps || 24;
+    var fps = opts.fps || (isMobile ? 14 : 24);
     var cropBottom = typeof opts.cropBottom === 'number' ? opts.cropBottom : 0.06;
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 2);
     var cw = 0, ch = 0;
     var fillEl = null, labelEl = null, btnEl = null;
     var rafId = 0;
+    var loadCursor = 1;
+    var readyFired = false;
 
     function frameAt(i) {
       return images[Math.max(0, Math.min(total - 1, i))];
@@ -615,36 +634,66 @@
       if (!last) last = ts;
       var dt = Math.min(120, ts - last);
       last = ts;
+      if (loaded < total) ensureAhead();
       if (!playing || !inView || loaded < 2) return;
       acc += dt;
       var frameMs = 1000 / fps;
       if (acc < frameMs) return;
       var steps = Math.max(1, Math.floor(acc / frameMs));
       acc -= steps * frameMs;
-      index = (index + steps) % total;
+      // if next frame not ready, wait instead of jumping to unloaded frame
+      var next = index;
+      for (var s = 0; s < steps; s++) {
+        var candidate = (next + 1) % total;
+        var img = images[candidate];
+        if (img && img.complete && img.naturalWidth) next = candidate; else break;
+      }
+      if (next === index && !(images[(index + 1) % total] && images[(index + 1) % total].complete)) return;
+      index = next;
       draw();
       updateUI();
     }
 
+    function fireReady() {
+      if (readyFired) return;
+      if (loaded >= 1) { readyFired = true; if (opts.onReady) opts.onReady(); }
+    }
+
     function loadAt(i) {
+      if (i < 0 || i >= total || requested[i]) return;
+      requested[i] = true;
       var img = new Image();
       img.decoding = 'async';
+      if ('fetchPriority' in img) img.fetchPriority = i === 0 ? 'high' : 'low';
       img.onload = function () {
         loaded++;
-        if (i === 0) resize();
+        if (i === 0) { resize(); fireReady(); }
         if (opts.onProgress) opts.onProgress(loaded, total);
-        if (loaded === total && opts.onReady) opts.onReady();
+        if (loaded === total && opts.onReady && readyFired) opts.onReady();
       };
       img.onerror = function () {
         loaded++;
-        if (loaded === total && opts.onReady) opts.onReady();
+        if (i === 0) fireReady();
+        if (opts.onProgress) opts.onProgress(loaded, total);
       };
       img.src = framePath(startFrame + i);
       images[i] = img;
     }
 
+    function ensureAhead() {
+      // keep a rolling buffer loaded around current index for smooth playback
+      var ahead = isMobile ? 24 : 48;
+      var target = Math.min(total, index + ahead);
+      while (loadCursor < target) { loadAt(loadCursor++); }
+      // continue background loading gradually
+      var budget = isMobile ? 2 : 4;
+      for (var n = 0; n < budget && loadCursor < total; n++) loadAt(loadCursor++);
+    }
+
     loadAt(0);
-    for (var i = 1; i < total; i++) loadAt(i);
+    for (var j = 1; j < Math.min(total, isMobile ? 12 : 24); j++) loadAt(j);
+    loadCursor = Math.max(loadCursor, j);
+    setTimeout(fireReady, 1200);
 
     if (opts.controls) {
       var bar = document.createElement('div');
