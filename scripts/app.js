@@ -97,6 +97,10 @@
         totalSessions: 0,
         lastDate: null
       },
+      study: {
+        messages: [],
+        sessions: []
+      },
       createdAt: now,
       lastActiveAt: now
     };
@@ -133,6 +137,10 @@
     if (!raw.exercises.daily || typeof raw.exercises.daily !== 'object') raw.exercises.daily = {};
     if (typeof raw.exercises.totalSessions !== 'number' || !isFinite(raw.exercises.totalSessions)) raw.exercises.totalSessions = 0;
     raw.exercises.totalSessions = Math.max(0, Math.floor(raw.exercises.totalSessions));
+
+    raw.study = raw.study && typeof raw.study === 'object' ? raw.study : {};
+    if (!Array.isArray(raw.study.messages)) raw.study.messages = [];
+    if (!Array.isArray(raw.study.sessions)) raw.study.sessions = [];
 
     if (typeof raw.createdAt !== 'number') raw.createdAt = defaults.createdAt;
     if (typeof raw.fatigueAt !== 'number') raw.fatigueAt = Date.now();
@@ -411,7 +419,8 @@
       { label: 'Food Database', href: 'foods.html', page: 'foods' },
       { label: 'Meal Calculator', href: 'nutrition.html', page: 'nutrition' }
     ] },
-    { label: 'Exercises', href: 'exercises.html', page: 'exercises' }
+    { label: 'Exercises', href: 'exercises.html', page: 'exercises' },
+    { label: 'Study', href: 'study.html', page: 'study' }
   ];
 
   var BRAND_SVG =
@@ -511,7 +520,7 @@
               '<a href="vision.html">Vision</a><a href="advisor.html">Advisor</a></div>' +
             '<div class="footer-col"><h4>Nutrition &amp; Training</h4>' +
               '<a href="diet.html">BMI &amp; Diet Plan</a><a href="foods.html">Food Database</a>' +
-              '<a href="nutrition.html">Meal Calculator</a><a href="exercises.html">Exercises</a></div>' +
+              '<a href="nutrition.html">Meal Calculator</a><a href="exercises.html">Exercises</a><a href="study.html">Study</a></div>' +
           '</div>' +
           '<div class="footer-bottom">' +
             '<span>Fan-made productivity prototype. Solo Leveling is owned by Chugong &amp; Redice Studio.</span>' +
@@ -2840,6 +2849,255 @@
     })();
 
     render();
+  };
+
+
+  /* ---------------------------- Study ----------------------------------- */
+  Pages.study = function () {
+    var subjectEl = document.getElementById('study-subject');
+    var minEl = document.getElementById('study-min');
+    var secEl = document.getElementById('study-sec');
+    var displayEl = document.getElementById('study-timer-display');
+    var labelEl = document.getElementById('study-timer-label');
+    var statusChip = document.getElementById('study-status-chip');
+    var progressFill = document.getElementById('study-progress-fill');
+    var startBtn = document.getElementById('study-start');
+    var pauseBtn = document.getElementById('study-pause');
+    var resetBtn = document.getElementById('study-reset');
+    var completeBtn = document.getElementById('study-complete');
+    var blocksEl = document.getElementById('study-blocks');
+    var addBlockBtn = document.getElementById('study-add-block');
+    var blockLabelEl = document.getElementById('study-block-label');
+    var blockMinEl = document.getElementById('study-block-min');
+    var chatForm = document.getElementById('study-chat-form');
+    var chatInput = document.getElementById('study-chat-input');
+    var chatMessages = document.getElementById('study-chat-messages');
+    var clearChatBtn = document.getElementById('study-clear-chat');
+    var logStatusBtn = document.getElementById('study-log-status');
+    var historyEl = document.getElementById('study-history');
+
+    if (!displayEl || !chatMessages) return;
+
+    function ensureStudy() {
+      if (!Store.state.study) Store.state.study = { messages: [], sessions: [], blocks: [] };
+      if (!Array.isArray(Store.state.study.messages)) Store.state.study.messages = [];
+      if (!Array.isArray(Store.state.study.sessions)) Store.state.study.sessions = [];
+      if (!Array.isArray(Store.state.study.blocks)) Store.state.study.blocks = [];
+      return Store.state.study;
+    }
+
+    var running = false, total = 30 * 60, remaining = 30 * 60, last = 0, raf = 0, startedAt = null;
+
+    function fmtClock(sec) {
+      sec = Math.max(0, Math.floor(sec));
+      var m = Math.floor(sec / 60), s = sec % 60;
+      return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }
+
+    function getDurationSec() {
+      var m = parseInt(minEl && minEl.value, 10) || 0;
+      var s = parseInt(secEl && secEl.value, 10) || 0;
+      return Math.max(0, m * 60 + s);
+    }
+
+    function setDuration(sec, keepLabel) {
+      total = Math.max(1, Math.floor(sec || 1800));
+      remaining = total;
+      running = false; last = 0; startedAt = null;
+      paintTimer();
+      if (!keepLabel && labelEl) labelEl.textContent = 'Focus session · ready (' + Math.round(total/60) + ' min)';
+      if (statusChip) statusChip.textContent = 'Ready';
+    }
+
+    function paintTimer() {
+      displayEl.textContent = fmtClock(remaining);
+      var pct = total > 0 ? ((total - remaining) / total) * 100 : 0;
+      if (progressFill) progressFill.style.width = Math.max(0, Math.min(100, pct)) + '%';
+      if (statusChip) statusChip.textContent = running ? 'Focusing' : (remaining === 0 ? 'Finished' : (remaining < total ? 'Paused' : 'Ready'));
+    }
+
+    function tick(ts) {
+      if (!running) return;
+      if (!last) last = ts;
+      var dt = (ts - last) / 1000; last = ts;
+      remaining -= dt;
+      if (remaining <= 0) {
+        remaining = 0; running = false; paintTimer();
+        if (labelEl) labelEl.textContent = 'Session finished';
+        toast('Study timer finished', 'Your focus session is complete. You can mark it as completed.');
+        addSystemChat('⏰ Timer finished for "' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session') + '".');
+        return;
+      }
+      paintTimer();
+      raf = requestAnimationFrame(tick);
+    }
+
+    function startTimer() {
+      if (running) return;
+      if (remaining <= 0) setDuration(getDurationSec() || total);
+      if (!startedAt) startedAt = Date.now();
+      running = true; last = 0;
+      if (labelEl) labelEl.textContent = 'Focusing on: ' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session');
+      paintTimer();
+      raf = requestAnimationFrame(tick);
+    }
+    function pauseTimer() { running = false; if (labelEl && remaining > 0) labelEl.textContent = 'Paused'; paintTimer(); }
+    function resetTimer() { running = false; setDuration(getDurationSec() || total); }
+
+    if (startBtn) startBtn.addEventListener('click', startTimer);
+    if (pauseBtn) pauseBtn.addEventListener('click', pauseTimer);
+    if (resetBtn) resetBtn.addEventListener('click', resetTimer);
+
+    if (completeBtn) completeBtn.addEventListener('click', function () {
+      var st = ensureStudy();
+      var dur = total;
+      var spent = Math.max(0, Math.round(dur - remaining));
+      if (spent < 60) spent = Math.min(dur, Math.max(spent, 60)); // record at least some time if they click
+      st.sessions.unshift({
+        id: Date.now().toString(36),
+        subject: (subjectEl && subjectEl.value) ? subjectEl.value.trim() : 'Study session',
+        durationSec: dur,
+        spentSec: spent,
+        completedAt: Date.now(),
+        status: remaining <= 0 ? 'completed' : 'logged'
+      });
+      st.sessions = st.sessions.slice(0, 100);
+      Store.save();
+      addSystemChat('✅ Session logged: ' + (subjectEl && subjectEl.value ? subjectEl.value : 'Study session') + ' (' + fmtClock(spent) + ').');
+      toast('Session saved', 'Study session added to history.');
+      renderHistory();
+      running = false; setDuration(getDurationSec() || total);
+    });
+
+    document.querySelectorAll('.study-preset').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var m = parseInt(btn.getAttribute('data-min'), 10) || 30;
+        if (minEl) minEl.value = m; if (secEl) secEl.value = 0;
+        setDuration(m * 60);
+      });
+    });
+
+    // blocks
+    function renderBlocks() {
+      if (!blocksEl) return;
+      var st = ensureStudy();
+      if (!st.blocks.length) {
+        blocksEl.innerHTML = '<div class="mono tiny" style="color:var(--primary-60)">No blocks yet. Add blocks like 30 min study, 10 min break, 30 min revision.</div>';
+        return;
+      }
+      blocksEl.innerHTML = st.blocks.map(function (b, i) {
+        return '<div class="history-item" style="align-items:center">' +
+          '<div style="min-width:0;cursor:pointer" data-load-block="' + i + '">' +
+            '<div class="history-name">' + escapeHtml(b.label || 'Block') + '</div>' +
+            '<div class="mono tiny">' + b.minutes + ' min · click to load timer</div>' +
+          '</div>' +
+          '<button class="btn btn-ghost btn-sm" type="button" data-remove-block="' + i + '">Remove</button>' +
+        '</div>';
+      }).join('');
+      blocksEl.querySelectorAll('[data-load-block]').forEach(function (el) {
+        el.addEventListener('click', function () {
+          var i = parseInt(el.getAttribute('data-load-block'), 10);
+          var b = st.blocks[i]; if (!b) return;
+          if (minEl) minEl.value = b.minutes; if (secEl) secEl.value = 0;
+          if (subjectEl && b.label) subjectEl.value = b.label;
+          setDuration(b.minutes * 60);
+          toast('Block loaded', b.label + ' · ' + b.minutes + ' min');
+        });
+      });
+      blocksEl.querySelectorAll('[data-remove-block]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var i = parseInt(btn.getAttribute('data-remove-block'), 10);
+          st.blocks.splice(i,1); Store.save(); renderBlocks();
+        });
+      });
+    }
+    if (addBlockBtn) addBlockBtn.addEventListener('click', function () {
+      var st = ensureStudy();
+      var label = (blockLabelEl && blockLabelEl.value) ? blockLabelEl.value.trim() : 'Study block';
+      var mins = parseInt(blockMinEl && blockMinEl.value, 10) || 10;
+      if (mins < 1) mins = 1;
+      st.blocks.push({ label: label, minutes: mins });
+      Store.save(); renderBlocks();
+      if (blockLabelEl) blockLabelEl.value = '';
+      toast('Block added', label + ' · ' + mins + ' min');
+    });
+
+    // chat (Telegram-style local study chat)
+    function renderChat() {
+      var st = ensureStudy();
+      if (!st.messages.length) {
+        chatMessages.innerHTML = '<div class="tg-empty">No messages yet. Start your study chat — log goals, notes, and progress here.</div>';
+        return;
+      }
+      chatMessages.innerHTML = st.messages.map(function (m) {
+        var isUser = m.role !== 'system';
+        return '<div class="tg-msg ' + (isUser ? 'user' : 'system') + '">' +
+          '<div class="tg-bubble">' +
+            (!isUser ? '<div class="tg-name">System</div>' : '') +
+            '<div class="tg-text">' + escapeHtml(m.text) + '</div>' +
+            '<div class="tg-time">' + escapeHtml(fmtDateTime(m.at)) + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addChat(text, role) {
+      if (!text) return;
+      var st = ensureStudy();
+      st.messages.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), text: text, role: role || 'user', at: Date.now() });
+      st.messages = st.messages.slice(-300);
+      Store.save();
+      renderChat();
+    }
+    function addSystemChat(text) { addChat(text, 'system'); }
+
+    if (chatForm) chatForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var text = chatInput ? chatInput.value.trim() : '';
+      if (!text) return;
+      addChat(text, 'user');
+      if (chatInput) chatInput.value = '';
+    });
+
+    if (clearChatBtn) clearChatBtn.addEventListener('click', function () {
+      var st = ensureStudy();
+      if (!st.messages.length) return;
+      st.messages = [];
+      Store.save();
+      renderChat();
+      toast('Chat cleared', 'Study chat messages removed.');
+    });
+
+    if (logStatusBtn) logStatusBtn.addEventListener('click', function () {
+      var subj = (subjectEl && subjectEl.value) ? subjectEl.value : 'Study session';
+      var msg = '📚 ' + subj + ' — timer ' + fmtClock(remaining) + ' left of ' + fmtClock(total) + ' (' + (running ? 'running' : 'paused/ready') + ').';
+      addChat(msg, 'user');
+    });
+
+    function renderHistory() {
+      if (!historyEl) return;
+      var st = ensureStudy();
+      if (!st.sessions.length) {
+        historyEl.innerHTML = emptyState('◈', 'No study sessions yet', 'Complete or log a session to build your study history.');
+        return;
+      }
+      historyEl.innerHTML = st.sessions.slice(0, 30).map(function (s) {
+        return '<div class="history-item">' +
+          '<div style="min-width:0">' +
+            '<div class="history-name">' + escapeHtml(s.subject || 'Study session') + '</div>' +
+            '<div class="mono tiny">' + fmtClock(s.spentSec || 0) + ' studied · planned ' + fmtClock(s.durationSec || 0) + ' · ' + escapeHtml(fmtDateTime(s.completedAt)) + '</div>' +
+          '</div>' +
+          '<span class="chip chip-soft">' + (s.status === 'completed' ? 'Completed' : 'Logged') + '</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    // init
+    setDuration(30 * 60);
+    renderBlocks();
+    renderChat();
+    renderHistory();
   };
 
 

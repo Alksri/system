@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study — System Portal</title>
+  <meta name="description" content="Study sessions with timers and a Telegram-style study chat/log." />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/pages.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+  <meta name="theme-color" content="#05060c" />
+  <meta name="color-scheme" content="dark" />
+</head>
+<body data-page="study">
+  <header id="site-header"></header>
+
+  <main class="section container">
+    <div class="dash-head">
+      <div>
+        <div class="chip chip-outline" style="margin-bottom:12px">Focus · Study session</div>
+        <h1 class="headline-lg">Study timer &amp; chat</h1>
+        <p class="body">Run focused study sessions with timers (30 min, 10 min, custom blocks) and keep notes in a Telegram-style study chat. Track your sessions in one place.</p>
+      </div>
+      <span class="chip" id="study-status-chip">Ready</span>
+    </div>
+
+    <div class="grid-2" style="align-items:start">
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Study timer</h2>
+            <p>Choose a subject and duration, then start your focus session</p>
+          </div>
+        </div>
+
+        <div class="form-stack">
+          <div class="field">
+            <label class="field-label" for="study-subject">Subject / task</label>
+            <input id="study-subject" class="input" type="text" placeholder="e.g. Math revision, Physics chapter 3, Reading" />
+          </div>
+
+          <div class="field">
+            <label class="field-label">Quick durations</label>
+            <div class="flex gap-xs wrap" id="study-presets">
+              <button class="btn btn-ghost btn-sm study-preset" data-min="10" type="button">10 min</button>
+              <button class="btn btn-ghost btn-sm study-preset" data-min="25" type="button">25 min</button>
+              <button class="btn btn-ghost btn-sm study-preset" data-min="30" type="button">30 min</button>
+              <button class="btn btn-ghost btn-sm study-preset" data-min="45" type="button">45 min</button>
+              <button class="btn btn-ghost btn-sm study-preset" data-min="60" type="button">60 min</button>
+            </div>
+          </div>
+
+          <div class="form-2">
+            <div class="field">
+              <label class="field-label" for="study-min">Minutes</label>
+              <input id="study-min" class="input" type="number" min="0" max="300" value="30" />
+            </div>
+            <div class="field">
+              <label class="field-label" for="study-sec">Seconds</label>
+              <input id="study-sec" class="input" type="number" min="0" max="59" value="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="study-timer-card">
+          <div class="study-timer-display" id="study-timer-display">30:00</div>
+          <div class="mono tiny" id="study-timer-label" style="color:var(--primary-60);margin-top:4px">Focus session · ready</div>
+          <div class="study-progress"><div class="study-progress-fill" id="study-progress-fill" style="width:0%"></div></div>
+          <div class="flex gap-xs wrap" style="margin-top:14px;justify-content:center">
+            <button id="study-start" class="btn btn-sm" type="button">Start</button>
+            <button id="study-pause" class="btn btn-secondary btn-sm" type="button">Pause</button>
+            <button id="study-reset" class="btn btn-ghost btn-sm" type="button">Reset</button>
+            <button id="study-complete" class="btn btn-sm" type="button">Complete session</button>
+          </div>
+        </div>
+
+        <div class="card-plain mt-sm">
+          <div class="label-sm" style="color:var(--primary-60);margin-bottom:6px">Session plan blocks</div>
+          <p class="body-sm" style="margin-bottom:10px">Add timed blocks for your study plan (e.g. 30 min study, 10 min break/review). Click a block to load its timer.</p>
+          <div class="form-2" style="margin-bottom:10px">
+            <input id="study-block-label" class="input" type="text" placeholder="Block name (e.g. Study, Break, Revision)" />
+            <div class="flex gap-xs">
+              <input id="study-block-min" class="input" type="number" min="1" max="300" value="10" style="max-width:110px" />
+              <button id="study-add-block" class="btn btn-sm" type="button">Add block</button>
+            </div>
+          </div>
+          <div id="study-blocks" class="stack"></div>
+        </div>
+      </section>
+
+      <section class="module">
+        <div class="module-head">
+          <div>
+            <h2>Study chat (Telegram-style)</h2>
+            <p>Log notes, goals, and progress during your session</p>
+          </div>
+          <button id="study-clear-chat" class="btn btn-ghost btn-sm" type="button">Clear chat</button>
+        </div>
+
+        <div class="tg-chat">
+          <div class="tg-messages" id="study-chat-messages"></div>
+          <form id="study-chat-form" class="chat-form" style="margin-top:10px">
+            <input id="study-chat-input" class="input" type="text" placeholder="Write a study note or message…" autocomplete="off" />
+            <button class="btn" type="submit">Send</button>
+          </form>
+          <div class="flex gap-xs wrap" style="margin-top:8px">
+            <button class="quick-chip" id="study-log-status" type="button">Log timer status</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <section class="module mt-md">
+      <div class="module-head">
+        <div>
+          <h2>Study session history</h2>
+          <p>Completed/focused sessions you’ve recorded</p>
+        </div>
+      </div>
+      <div id="study-history" class="stack"></div>
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+  <div id="toast-hub" class="toast-hub"></div>
+  <script src="scripts/app.js"></script>
+</body>
+</html>
