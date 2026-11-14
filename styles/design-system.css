@@ -112,7 +112,7 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
@@ -130,7 +130,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   background: radial-gradient(120% 90% at 50% 45%, transparent 42%, rgba(2, 3, 8, 0.55) 100%);
 }
@@ -529,10 +529,12 @@ ul { list-style: none; }
   visibility: hidden;
   transform: translateY(-6px);
   transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), visibility var(--dur);
+  z-index: 120;
 }
 
 .nav-dropdown:hover .nav-dropdown-menu,
-.nav-dropdown:focus-within .nav-dropdown-menu {
+.nav-dropdown:focus-within .nav-dropdown-menu,
+.nav-dropdown.open .nav-dropdown-menu {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -926,8 +928,12 @@ input[type="file"]::file-selector-button {
     gap: 4px;
     backdrop-filter: blur(18px);
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
+    max-height: calc(100vh - var(--nav-height));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 110;
   }
-  .nav-links.open .nav-link { border-radius: var(--radius-md); }
+  .nav-links.open .nav-link { border-radius: var(--radius-md); min-height: 44px; display: flex; align-items: center; }
   .nav-links.open .nav-dropdown-menu {
     position: static;
     opacity: 1;
@@ -951,7 +957,13 @@ input[type="file"]::file-selector-button {
   .dash-head { flex-direction: column; align-items: flex-start; gap: 12px; }
   .module { padding: 16px; }
   .btn { min-height: 44px; }
+  .btn-sm { min-height: 40px; padding: 8px 14px; }
   .nav-right .nav-status { display: none; }
+  .nav-toggle { width: 44px; height: 44px; }
+  .nav-link, .nav-dropdown-item { min-height: 44px; }
+  .user-menu .user-trigger { min-height: 40px; }
+  .input, .select { min-height: 44px; font-size: 16px; }
+  .textarea { font-size: 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1019,6 +1031,7 @@ input[type="file"]::file-selector-button {
   left: auto;
   right: 0;
   min-width: 264px;
+  max-width: min(320px, calc(100vw - 24px));
 }
 
 .user-meta {
@@ -1191,16 +1204,22 @@ input[type="file"]::file-selector-button {
   .user-name { display: none; }
 }
 
+@media (max-width: 640px) {
+  .user-dropdown { right: -4px; }
+  .nav-right { gap: 8px; }
+}
+
 /* --------------------------------------------------------------------------
    Global ARISE ambience (animated, all pages)
    -------------------------------------------------------------------------- */
 .global-arise-fx {
   position: fixed;
   inset: 0;
-  pointer-events: none;
+  pointer-events: none !important;
   z-index: 0;
   overflow: hidden;
 }
+.global-arise-fx * { pointer-events: none !important; }
 body { position: relative; }
 main, .site-header, .site-footer, .nf-wrap { position: relative; z-index: 1; }
 .site-header { z-index: 50; }

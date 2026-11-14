@@ -539,23 +539,73 @@
     var toggle = document.getElementById('nav-toggle');
     var links = document.getElementById('nav-links');
     if (toggle && links) {
-      toggle.addEventListener('click', function () {
+      function closeMobileNav() {
+        links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+      toggle.addEventListener('click', function (e) {
+        e.stopPropagation();
         var open = links.classList.toggle('open');
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
       links.querySelectorAll('a').forEach(function (a) {
         a.addEventListener('click', function () {
-          links.classList.remove('open');
-          toggle.setAttribute('aria-expanded', 'false');
+          closeMobileNav();
         });
+      });
+      // Dropdown toggle buttons inside mobile menu: allow tap to focus/open on touch,
+      // but in the expanded mobile list submenus are shown statically.
+      links.querySelectorAll('.nav-dropdown > .nav-link').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          if (window.innerWidth <= 960 && links.classList.contains('open')) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      });
+      document.addEventListener('click', function (e) {
+        if (links.classList.contains('open') && !links.contains(e.target) && !toggle.contains(e.target)) {
+          closeMobileNav();
+        }
       });
       window.addEventListener('resize', function () {
         if (window.innerWidth > 960) {
-          links.classList.remove('open');
-          toggle.setAttribute('aria-expanded', 'false');
+          closeMobileNav();
         }
       });
     }
+
+    // Tap/click support for dropdowns (user menu, and nav dropdowns on touch)
+    var navDropdowns = header ? Array.prototype.slice.call(header.querySelectorAll('.nav-dropdown')) : [];
+    navDropdowns.forEach(function (dd) {
+      var trigger = dd.querySelector(':scope > .user-trigger, :scope > .nav-link, :scope > button');
+      var menu = dd.querySelector(':scope > .nav-dropdown-menu');
+      if (!trigger || !menu) return;
+
+      trigger.addEventListener('click', function (e) {
+        // In mobile open nav, nested nav menus are displayed statically; don't toggle them.
+        if (dd.closest('#nav-links') && links && links.classList.contains('open') && window.innerWidth <= 960) {
+          return;
+        }
+        // For anchor triggers, allow navigation; for buttons (user trigger, dropdown labels) toggle.
+        if (trigger.tagName === 'A') return;
+        e.preventDefault();
+        e.stopPropagation();
+        var willOpen = !dd.classList.contains('open');
+        navDropdowns.forEach(function (other) { if (other !== dd) other.classList.remove('open'); });
+        dd.classList.toggle('open', willOpen);
+        trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+    });
+    document.addEventListener('click', function (e) {
+      navDropdowns.forEach(function (dd) {
+        if (!dd.contains(e.target)) {
+          dd.classList.remove('open');
+          var t = dd.querySelector(':scope > .user-trigger, :scope > .nav-link, :scope > button');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
 
     // Global animated "ARISE" ambience on all pages
     if (!document.querySelector('.global-arise-fx')) {
