@@ -1,0 +1,39 @@
+{
+  "name": "System Portal",
+  "short_name": "System",
+  "description": "Solo Leveling-themed progression portal with quests, training, study, nutrition, and tracking. Works offline.",
+  "start_url": "./login.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#05060c",
+  "theme_color": "#05060c",
+  "lang": "en",
+  "categories": ["productivity", "health", "education"],
+  "icons": [
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

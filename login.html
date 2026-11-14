@@ -11,6 +11,13 @@
   <script src="scripts/auth.js"></script>
   <meta name="theme-color" content="#05060c" />
   <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="System Portal" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
 </head>
 <body class="auth-body">
   <aside class="auth-visual">
@@ -130,5 +137,12 @@
   </main>
 
   <script src="scripts/login.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
