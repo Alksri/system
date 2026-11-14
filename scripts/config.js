@@ -17,5 +17,8 @@ window.SYSTEM_CONFIG = {
   // Change these if you want different credentials.
   adminEmail: 'admin@system.local',
   adminName: 'System Admin',
-  adminPassword: 'AriseAdmin#2026'
+  adminPassword: 'AriseAdmin#2026',
+  // Where the OTP / account API lives. The Android app uses this too, so it
+  // must be an absolute URL (the APK's own origin is bundled assets).
+  apiUrl: 'https://system-portal.netlify.app/.netlify/functions/auth'
 };

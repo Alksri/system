@@ -331,7 +331,7 @@
   /* ---- online accounts (email OTP registration) -------------------------------- */
 
   var PROFILE_KEY = 'system_portal_profile_v1_';
-  var API_URL = '/.netlify/functions/auth';
+  var API_URL = (window.SYSTEM_CONFIG && window.SYSTEM_CONFIG.apiUrl) || 'https://system-portal.netlify.app/.netlify/functions/auth';
 
   function profileKey(email) {
     return PROFILE_KEY + normaliseEmail(email);
