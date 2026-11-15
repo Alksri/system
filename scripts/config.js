@@ -1,24 +1,26 @@
 /* ==========================================================================
    SYSTEM PORTAL — Runtime configuration
    --------------------------------------------------------------------------
-   To enable real Google Sign-In:
+   To enable real Google sign-in / account creation:
+
      1. Open https://console.cloud.google.com/apis/credentials
      2. Create an OAuth 2.0 Client ID of type "Web application".
-     3. Add http://localhost:8090 to "Authorised JavaScript origins".
-     4. Paste the client ID below (it ends in .apps.googleusercontent.com).
-   Until a real client ID is present, Google Sign-In stays disabled and the
-   site uses local accounts only. Nothing is faked.
+     3. Authorise these origins in the client:
+          https://system-portal.netlify.app
+          https://appassets.androidplatform.net   (for the MONARCH app)
+        Add http://127.0.0.1:8091 (and http://127.0.0.1:8090 if used) for local testing.
+     4. Paste the client ID below (it ends in .apps.googleusercontent.com),
+        then redeploy and rebuild MONARCH.apk.
+
+   Until a real client ID is present, Google sign-in stays hidden and only
+   local accounts (stored in this browser/device) and the admin account work.
    ========================================================================== */
 window.SYSTEM_CONFIG = {
-  appName: 'System Portal',
+  appName: 'MONARCH',
   googleClientId: '',
   sessionHours: 12,
   // Built-in admin account for this local install.
-  // Change these if you want different credentials.
   adminEmail: 'admin@system.local',
   adminName: 'System Admin',
-  adminPassword: 'AriseAdmin#2026',
-  // Where the OTP / account API lives. The Android app uses this too, so it
-  // must be an absolute URL (the APK's own origin is bundled assets).
-  apiUrl: 'https://system-portal.netlify.app/.netlify/functions/auth'
+  adminPassword: 'AriseAdmin#2026'
 };

@@ -2,8 +2,6 @@
   "name": "system-portal",
   "version": "1.0.0",
   "private": true,
-  "description": "System Portal — gamified real-habit progression (nutrition, exercises, study) with email-verified accounts.",
-  "dependencies": {
-    "@netlify/blobs": "^10.0.0"
-  }
+  "description": "MONARCH — gamified real-habit progression (nutrition, exercises, study).",
+  "dependencies": {}
 }

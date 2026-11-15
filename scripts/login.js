@@ -27,7 +27,15 @@
     hours: document.getElementById('auth-hours')
   };
 
-  var next = SystemAuth.safeNext(new URLSearchParams(location.search).get('next'));
+  var nativeApp = false;
+  try {
+    nativeApp = !!(window.SystemAppBridge && window.SystemAppBridge.isApp && window.SystemAppBridge.isApp());
+  } catch (e) { nativeApp = false; }
+
+  // In the MONARCH app, signing in lands on MONARCH, not the website home.
+  var nextParam = new URLSearchParams(location.search).get('next');
+  var next = SystemAuth.safeNext(nextParam);
+  if (nativeApp && !nextParam) next = 'monarch.html';
 
   if (els.hours) els.hours.textContent = String(SystemAuth.sessionHours());
 
@@ -44,12 +52,6 @@
     return;
   }
 
-  // Inside the Android app: local accounts are the offline path, so drop the
-  // web-only Google setup card and use device wording.
-  var nativeApp = false;
-  try {
-    nativeApp = !!(window.SystemAppBridge && window.SystemAppBridge.isApp && window.SystemAppBridge.isApp());
-  } catch (e) { nativeApp = false; }
   if (nativeApp) document.documentElement.classList.add('native-android');
 
   /* ---- Visual animation (particles) ------------------------------------ */
@@ -202,7 +204,7 @@
 
       setBusy(true);
       try {
-        var result = await SystemAuth.smartSignIn(payload);
+        var result = await SystemAuth.signInLocal(payload);
 
         if (!result.ok) {
           setBusy(false);

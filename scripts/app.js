@@ -491,6 +491,19 @@
     var user = currentUser();
     var derived = derive(Store.state);
 
+    var nativeApp = false;
+    try {
+      nativeApp = !!(window.SystemAppBridge && window.SystemAppBridge.isApp && window.SystemAppBridge.isApp());
+    } catch (e) { nativeApp = false; }
+
+    var APP_PAGE_LABELS = {
+      home: 'Home', status: 'Status', quests: 'Quests', diet: 'BMI & Diet',
+      foods: 'Food Database', nutrition: 'Meal Calculator', exercises: 'Exercises',
+      study: 'Study', monarch: 'MONARCH', awakening: 'Awakening', extraction: 'Extraction',
+      arise: 'Arise', army: 'Shadow Army', vision: 'Vision', advisor: 'Advisor',
+      progress: 'Progress', inventory: 'Inventory'
+    };
+
     function navLinks() {
       return NAV.map(function (item) {
         if (item.dropdown) {
@@ -507,23 +520,39 @@
     }
 
     if (header) {
-      header.className = 'site-header';
-      header.innerHTML =
-        '<div class="container nav-inner">' +
-          brandHtml() +
-          '<nav class="nav-links" id="nav-links">' + navLinks() + '</nav>' +
-          '<div class="nav-right">' +
-            '<span class="nav-status"><span class="pulse-dot"></span>' +
-              '<span id="nav-status-text">LV ' + Store.state.level + ' · ' + derived.rank + '</span></span>' +
-            userMenuHtml(user) +
-            '<button class="nav-toggle" id="nav-toggle" aria-label="Menu"><span></span></button>' +
-          '</div>' +
-        '</div>';
+      if (nativeApp && page !== 'monarch') {
+        // Minimal top bar inside the MONARCH app: no website nav, quick return.
+        header.className = 'site-header monarch-app-bar';
+        header.innerHTML =
+          '<div class="monarch-app-bar-inner">' +
+            '<a class="monarch-bar-back" href="monarch.html" aria-label="Back to MONARCH">' +
+              '<svg viewBox="0 0 24 24" fill="none" width="24" height="24"><path d="M15 5l-7 7 7 7" stroke="#c4b5fd" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</a>' +
+            '<span class="monarch-bar-title">MONARCH</span>' +
+            '<span class="monarch-bar-page">' + escapeHtml(APP_PAGE_LABELS[page] || page) + '</span>' +
+          '</div>';
+      } else {
+        header.className = 'site-header';
+        header.innerHTML =
+          '<div class="container nav-inner">' +
+            brandHtml() +
+            '<nav class="nav-links" id="nav-links">' + navLinks() + '</nav>' +
+            '<div class="nav-right">' +
+              '<span class="nav-status"><span class="pulse-dot"></span>' +
+                '<span id="nav-status-text">LV ' + Store.state.level + ' · ' + derived.rank + '</span></span>' +
+              userMenuHtml(user) +
+              '<button class="nav-toggle" id="nav-toggle" aria-label="Menu"><span></span></button>' +
+            '</div>' +
+          '</div>';
+      }
     }
 
     if (footer) {
-      footer.className = 'site-footer';
-      footer.innerHTML =
+      if (nativeApp) {
+        footer.innerHTML = '';
+      } else {
+        footer.className = 'site-footer';
+        footer.innerHTML =
         '<div class="container">' +
           '<div class="footer-grid">' +
             '<div class="footer-col">' +
@@ -545,6 +574,7 @@
             '<span class="mono tiny">v3.0 · real data · authenticated</span>' +
           '</div>' +
         '</div>';
+        }
     }
 
     var signout = document.getElementById('auth-signout');

@@ -1,109 +1,55 @@
-# System Portal — Android app (APK)
+# MONARCH — one app, everything included
 
-A real, installable Android app that contains the **entire** System Portal:
+The website (system-portal.netlify.app) is on the **website only** side.
+The installable Android app you put on your phone is **MONARCH**.
 
-- Every page: dashboard, status, quests, inventory, vision, extraction, army,
-  advisor, progress, BMI/diet, food database, meal calculator, exercises,
-  study, and the themed 404.
-- All 270 hero frames, styles, animations and the ARISE effects.
-- Local accounts (PBKDF2), per-user progress, camera check-ins, the diet-plan
-  PDF, exercise timers, study timers/blocks/chat — everything.
-- **Works with zero internet**: all files live inside the APK. Only Google
-  Sign-In needs the network (and it stays off until a real OAuth client ID is
-  configured).
+## What's inside (works fully offline)
 
-## Install on a phone
+- **MONARCH** home: player card with original crest, level + rank (E→S),
+  XP / HP / MP bars, ability points, workout streak, stats for workouts and quests
+- **Workout**: multi-exercise sessions, weight × reps per set, auto PR detection,
+  Push/Pull/Legs/Full Body plans, volume totals, history
+- **Quests**: active quests completable in one tap — XP, gold, ability points
+- **Stats**: STR/AGI/VIT/INT/PER attributes, derived HP/MP, rank ladder, ability points
+- Every tool from the site in the **More** tab (open them inside the app):
+  Exercises · Study · BMI & Diet · Food Database · Meal Calculator
+  Status · Vision (camera check-ins) · Advisor · Progress · Inventory
+  Awakening · Extraction · Arise · Shadow Army
 
-1. Copy `SystemPortal.apk` to the phone (USB, Bluetooth, Google Drive, or
-   download it from the deployed site).
-2. Tap the file. Android will ask to allow installs from this source — allow
-   it for the file manager/browser you used.
-3. Open **System Portal** from the app drawer.
-4. Create a local account (or use the built-in admin account printed on the
-   login screen). Everything is stored on the phone only.
+## Sign in
 
-Requirements: Android 7.0 (API 24) or newer. Minimum ~40 MB free storage.
+- Local accounts (works offline) — create one once, it stays on the device.
+- Google sign-in / account creation activates as soon as a real Google OAuth
+  Client ID is added to `scripts/config.js` (see step below).
+- The built-in admin account from `scripts/config.js` works for testing.
 
-## Online accounts (registration with email OTP)
+## Google sign-in (when you have the client ID)
 
-The app and the website share one account system: register with your Gmail
-on either platform and sign in on the other.
+1. https://console.cloud.google.com/apis/credentials → Create OAuth 2.0 Client ID
+   (Web application).
+2. Authorised JavaScript origins:
+   - `https://system-portal.netlify.app`
+   - `https://appassets.androidplatform.net`
+   - `http://127.0.0.1:8091` (for local testing)
+3. Paste the client ID into `scripts/config.js` → `googleClientId`, redeploy,
+   rebuild MONARCH (`python monarch\build_apk.py`).
 
-- Registration is a 3-step wizard (`register.html`): profile (name, gender,
-  age/DOB, height, weight, activity, goal) → 6-digit code emailed to your
-  Gmail → set your password.
-- Passwords are stored PBKDF2-SHA-256 hashed on the Netlify project (and
-  mirrored locally inside the app for offline sign-in).
-- **OTP delivery requires internet.** The OTP is sent by a Netlify Function
-  via Brevo. Signing in afterwards works offline, as does everything else in
-  the app.
-- The account you register is mirrored under `system_portal_users_v1` on this
-  device, so the same email + password works on the site and the app.
-
-## What is inside the APK
-
-| Path | Purpose |
-| --- | --- |
-| `assets/www/` | The complete offline site (HTML, CSS, JS, icons, frames, jsPDF) |
-| `MainActivity.java` | Native WebView shell, asset server, camera permission, PDF saving |
-| `res/` | Launcher icon, adaptive icon, splash screen, theme |
-| `AndroidManifest.xml` | App identity, permissions, activity |
-
-The WebView serves the bundled files from `https://appassets.androidplatform.net`
-so `localStorage`, Web Crypto (password hashing) and camera APIs behave exactly
-like a normal secure origin. Nothing is fetched from the network at runtime.
-
-## App-specific behaviour
-
-- The hardware **Back** button walks back through page history, then exits.
-- **PDF downloads** (BMI & Diet Plan → Download PDF) are written to
-  `Downloads/` via `SystemAppBridge.savePdf`, with a toast confirmation.
-- **Camera** check-ins work: Android asks for camera permission the first time.
-- **Timers** (exercise, breathing, study) keep the screen awake while running.
-- External links (Google console help, etc.) open in the phone's browser.
-
-## Rebuild the APK
-
-Prerequisites on the build machine:
-
-- JDK 17+ (`javac`, `keytool`, `jar`)
-- Android SDK with `build-tools` (aapt2, d8, zipalign, apksigner) and any
-  `platforms/android-*/android.jar`
-
-Then from the repo root:
+## Build the APK
 
 ```powershell
-python android\build_apk.py
+python monarch\build_apk.py
 ```
 
-The script:
+Prerequisites: JDK 17+, Android SDK with build-tools and any `platforms/android-*`.
+Output: `monarch/dist/MONARCH-1.0.apk` and `MONARCH.apk` in the repo root.
 
-1. bundles the site into `android/build/assets/www` (all `*.html`,
-   `scripts/`, `styles/`, `icons/`, `vendor/`, `manifest.json`, all frames;
-   `sw.js` is intentionally excluded because the app is already offline),
-2. compiles resources with `aapt2`, Java with `javac`, dex with `d8`,
-3. zipaligns and signs with `android/keystore/system-portal.jks`,
-4. writes `android/dist/SystemPortal-1.0.0.apk` and `SystemPortal.apk`
-   in the repo root.
+- Package: `com.alksri.monarch`, label **MONARCH**
+- Main activity: `com.alksri.monarch.MainActivity` (WebView shell)
+- All 20 pages, 270 hero frames, icons, crest and generated art are bundled.
+- min Android 7 (API 24). Offline-capable; no network except Google sign-in.
 
-The signing key is local to this machine (`android/keystore/`). Keep it if you
-want future builds to install as updates over the current app; without it you
-must uninstall the old app first.
+## Sharing this app
 
-## Verification
-
-```powershell
-# structural check of the built package
-& "$env:LOCALAPPDATA\Android\Sdk\build-tools\37.0.0\aapt2.exe" dump badging SystemPortal.apk
-
-# signature check
-& "$env:LOCALAPPDATA\Android\Sdk\build-tools\37.0.0\apksigner.bat" verify --print-certs SystemPortal.apk
-```
-
-## Notes
-
-- Accounts, progress and check-ins live in the WebView's `localStorage` inside
-  the app sandbox. Uninstalling the app deletes them, same as clearing app data.
-- The APK is signed with a local self-signed certificate, which is correct for
-  sideloading. Publishing to Google Play would require Play App Signing.
-- Health and nutrition values are reference estimates, not medical advice.
+Signed with a local self-signed certificate (`monarch/keystore/monarch.jks`,
+kept untracked by git). Fine for sideloading on your phone. Publishing on the
+Play Store would require Play App Signing and a Google developer account.

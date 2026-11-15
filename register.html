@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Register — System Portal</title>
-  <meta name="description" content="Register your hunter profile: name, Gmail, gender, age, height and weight. We email you a one-time code, then you pick a password." />
+  <meta name="description" content="Register your hunter profile: name, gender, date of birth, height and weight — then choose how to sign in (Google or email)." />
   <link rel="stylesheet" href="styles/design-system.css" />
   <link rel="stylesheet" href="styles/auth.css" />
   <link rel="stylesheet" href="styles/register.css" />
@@ -51,17 +51,17 @@
           <span class="hero-line">ARISE.</span>
           <span class="hero-line gradient-text">Register your profile.</span>
         </h1>
-        <p>The System needs to know who you are before it can rank you. Tell us your name, gender, age, height and weight, we email a one-time code to your Gmail, and then you lock it all behind a password.</p>
+        <p>The System needs to know who you are before it can rank you. Tell us your name, gender, age, height and weight — then choose how to sign in.</p>
         <figure class="reg-step-list" aria-label="Registration steps">
-          <div class="reg-step-item" id="reg-indicator-1"><span>01</span>Hunter profile<small>name · Gmail · age · body metrics</small></div>
-          <div class="reg-step-item" id="reg-indicator-2"><span>02</span>Email verification<small>one-time code to your inbox</small></div>
-          <div class="reg-step-item" id="reg-indicator-3"><span>03</span>Set your password<small>lock the account down</small></div>
+          <div class="reg-step-item active"><span>01</span>Hunter profile<small>name · gender · body metrics</small></div>
+          <div class="reg-step-item" id="reg-indicator-2"><span>02</span>Choose sign-in<small>Google or email account</small></div>
+          <div class="reg-step-item" id="reg-indicator-3"><span>03</span>Ready<small>enter the System</small></div>
         </figure>
       </div>
 
       <div class="auth-visual-foot">
-        <span>Verified Gmail required</span>
-        <span>Works on web + Android app</span>
+        <span>One profile per account</span>
+        <span>Google or email</span>
       </div>
     </div>
   </aside>
@@ -69,10 +69,10 @@
   <main class="auth-panel">
     <div class="auth-card reg-card">
       <span class="kicker">Hunter registration</span>
-      <h2 class="auth-title" id="reg-title">Register your profile</h2>
-      <div class="reg-progress" aria-hidden="true"><span class="reg-progress-fill" id="reg-progress-fill"></span></div>
+      <h2 class="auth-title">Register your profile</h2>
+      <div class="reg-progress" aria-hidden="true"><span class="reg-progress-fill" id="reg-progress-fill" style="width:66.666%"></span></div>
 
-      <form class="auth-form reg-step" id="reg-step-1" novalidate>
+      <form class="auth-form reg-step active" id="reg-form" novalidate>
         <div class="form-2">
           <div class="field">
             <label class="field-label" for="reg-name">Full name</label>
@@ -90,8 +90,8 @@
         </div>
 
         <div class="field">
-          <label class="field-label" for="reg-email">Gmail <span class="auth-hint">verification code goes here</span></label>
-          <input id="reg-email" class="input" type="email" placeholder="you@gmail.com" autocomplete="email" autocapitalize="off" spellcheck="false" required />
+          <label class="field-label" for="reg-email">Email <span class="auth-hint">used to sign in</span></label>
+          <input id="reg-email" class="input" type="email" placeholder="you@example.com" autocomplete="email" autocapitalize="off" spellcheck="false" required />
         </div>
 
         <div class="form-2">
@@ -132,59 +132,36 @@
           </select>
         </div>
 
-        <div class="auth-error" id="reg-error-1" role="alert"></div>
-        <button class="btn btn-block" type="submit" id="reg-send-otp">Send verification code</button>
-      </form>
+        <div class="reg-password" id="reg-password-section" hidden>
+          <div class="field">
+            <label class="field-label" for="reg-password">Password <span class="auth-hint">8+ chars · letters &amp; numbers</span></label>
+            <input id="reg-password" class="input" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8" />
+          </div>
+          <div class="reg-strength" aria-hidden="true"><span id="reg-strength-fill"></span></div>
+          <div class="auth-hint" id="reg-pass-match" hidden></div>
+          <button class="btn btn-block" type="submit" id="reg-create">Create account &amp; enter the System</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="reg-cancel-password" style="width:100%;margin-top:8px">Cancel — choose Google instead</button>
+        </div>
 
-      <form class="auth-form reg-step" id="reg-step-2" hidden novalidate>
-        <p class="reg-otp-copy">A one-time code was sent to<br><strong id="reg-otp-email">you@gmail.com</strong></p>
-        <div class="reg-otp" id="reg-otp" role="group" aria-label="6 digit verification code">
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 2" />
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 3" />
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 4" />
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 5" />
-          <input class="otp-digit" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit 6" />
-        </div>
-        <div class="auth-error" id="reg-error-2" role="alert"></div>
-        <button class="btn btn-block" type="submit" id="reg-verify">Verify code</button>
-        <div class="reg-otp-foot">
-          <button type="button" class="btn btn-ghost btn-sm" id="reg-resend">Resend code</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="reg-change-email">Use a different Gmail</button>
-        </div>
-        <p class="auth-hint">The code expires in 10 minutes. Check spam/promotions if it is missing.</p>
-      </form>
+        <div class="auth-error" id="reg-error" role="alert"></div>
 
-      <form class="auth-form reg-step" id="reg-step-3" hidden novalidate>
-        <p class="reg-otp-copy">Email verified. Lock <strong id="reg-lock-email">you@gmail.com</strong> down.</p>
-        <div class="field">
-          <label class="field-label" for="reg-password">Password <span class="auth-hint">8+ chars · letters &amp; numbers</span></label>
-          <input id="reg-password" class="input" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8" required />
+        <button class="btn btn-block" type="button" id="reg-create-email">Create account with email</button>
+
+        <div class="auth-divider" id="reg-divider">or</div>
+        <div class="gsi-button-row" id="gsi-button-row">
+          <div id="gsi-button"></div>
         </div>
-        <div class="reg-strength" aria-hidden="true"><span id="reg-strength-fill"></span></div>
-        <ul class="reg-rules" id="reg-rules">
-          <li data-rule="length">At least 8 characters</li>
-          <li data-rule="letter">Contains letters</li>
-          <li data-rule="number">Contains a number</li>
-        </ul>
-        <div class="field">
-          <label class="field-label" for="reg-confirm">Confirm password</label>
-          <input id="reg-confirm" class="input" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8" required />
+        <div class="auth-note" id="gsi-note" hidden>
+          <strong>Google sign-in is not configured</strong>
+          Add a Google OAuth Client ID in <code>scripts/config.js</code> (authorise <code>https://system-portal.netlify.app</code>) to enable Continue with Google. Use the email button above until then.
         </div>
-        <div class="auth-error" id="reg-error-3" role="alert"></div>
-        <button class="btn btn-block" type="submit" id="reg-finish">Complete registration</button>
       </form>
 
       <div class="reg-success" id="reg-success" hidden>
         <div class="reg-success-mark" aria-hidden="true">✓</div>
         <h2 class="auth-title">ARISE, <span id="reg-welcome-name">Hunter</span>.</h2>
-        <p>Your hunter profile is registered and this device is signed in. Your stats, quests and progress are stored under your account — on this device.</p>
+        <p>Your hunter profile is registered. Your stats, quests and progress now live under this account on this device.</p>
         <button class="btn btn-block" type="button" id="reg-enter">Enter the System</button>
-      </div>
-
-      <div class="auth-note" id="reg-note">
-        <strong>Privacy</strong>
-        Your profile (name, gender, age, height, weight) is stored on this device and, once you set a password, on the System Portal server keyed to your Gmail. We never share it or sell it.
       </div>
 
       <p class="auth-foot">Already registered? <a href="login.html" class="link">Sign in instead</a></p>

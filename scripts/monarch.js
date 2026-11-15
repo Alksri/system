@@ -70,6 +70,7 @@
           case 'pr': tone(880, 'triangle', 0.3, 0.18, 0, 1320); tone(1320, 'triangle', 0.4, 0.12, 0.18); break;
           case 'level': tone(392, 'triangle', 0.34, 0.2, 0); tone(523.25, 'triangle', 0.34, 0.2, 0.18); tone(659.25, 'triangle', 0.55, 0.22, 0.36); break;
           case 'rank': tone(311.13, 'sawtooth', 0.5, 0.16, 0, 466.16); tone(466.16, 'sawtooth', 0.5, 0.14, 0.22, 622.25); tone(622.25, 'sawtooth', 0.7, 0.15, 0.44, 932.33); break;
+          case 'thunder': tone(95, 'sawtooth', 1.0, 0.22, 0, 46); tone(46, 'sine', 1.5, 0.3, 0.08); tone(233.08, 'triangle', 0.6, 0.12, 0.4); break;
           case 'error': tone(140, 'square', 0.16, 0.1); break;
           default: tone(660, 'sine', 0.1, 0.1);
         }
@@ -84,7 +85,8 @@
     dashboard: document.getElementById('screen-dashboard'),
     workout: document.getElementById('screen-workout'),
     quests: document.getElementById('screen-quests'),
-    stats: document.getElementById('screen-stats')
+    stats: document.getElementById('screen-stats'),
+    tools: document.getElementById('screen-tools')
   };
   var navBtns = Array.prototype.slice.call(document.querySelectorAll('.monarch-nav-btn'));
 
@@ -174,12 +176,21 @@
     var d;
     if (kind === 'rank') {
       d = derive();
-      el['levelup-word'].textContent = 'RANK UP';
+      var lines = {
+        D: 'THE HUNT BEGINS',
+        C: 'THE QUEST CONTINUES',
+        B: 'THE HORIZON SHIFTS',
+        A: 'BEYOND THE ORDINARY',
+        S: 'SHADOW MONARCH'
+      };
+      el['levelup-word'].textContent = 'RANK ' + d.rank;
       el['levelup-rank'].textContent = d.rank;
-      el['levelup-sub'].textContent = 'RANK ' + d.rank + ' · the System acknowledges you';
-      AudioFX.play('rank');
-      vibrate([40, 60, 40, 60, 140]);
-      runParticles(el['levelup-canvas'], ['#c4b5fd', '#8b5cf6', '#e6c36a', '#ffffff']);
+      el['levelup-sub'].textContent = lines[d.rank] || 'THE SYSTEM ACKNOWLEDGES YOU';
+      AudioFX.play(d.rank === 'S' ? 'thunder' : 'rank');
+      vibrate(d.rank === 'S' ? [60, 80, 60, 80, 160] : [40, 60, 40, 60, 140]);
+      runParticles(el['levelup-canvas'], d.rank === 'S'
+        ? ['#c4b5fd', '#8b5cf6', '#e6c36a', '#ffffff', '#7dd3fc']
+        : ['#c4b5fd', '#8b5cf6', '#e6c36a']);
     } else {
       el['levelup-word'].textContent = 'LEVEL UP';
       el['levelup-rank'].textContent = String(state.level);
@@ -603,8 +614,9 @@
     if (el['rank-ladder']) {
       el['rank-ladder'].innerHTML = RANKS.map(function (x, i) {
         return '<div class="ladder-cell' + (i === cur ? ' current' : '') + '">' +
-          '<div style="font-size:18px">' + x.r + '</div>' +
-          '<div style="font-size:9px;margin-top:4px;color:inherit">LV ' + x.min + '+</div>' +
+          '<img class="ladder-emblem" src="assets/ranks/rank-' + x.r.toLowerCase() + '.png" alt="" width="40" height="40" loading="lazy" />' +
+          '<div style="font-size:15px">' + x.r + '</div>' +
+          '<div style="font-size:8px;margin-top:2px;color:inherit">LV ' + x.min + '+</div>' +
         '</div>';
       }).join('');
     }
