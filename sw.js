@@ -1,15 +1,20 @@
-﻿const CACHE_VERSION = 'system-portal-v3';
+﻿const CACHE_VERSION = 'system-portal-v4';
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
   './register.html',
+  './monarch.html',
   './scripts/app.js',
   './scripts/auth.js',
   './scripts/config.js',
   './scripts/login.js',
   './scripts/register.js',
+  './scripts/monarch.js',
   './styles/register.css',
+  './styles/monarch.css',
+  './assets/monarch-crest.png',
+  './assets/monarch-icon-512.png',
   './scripts/nutrition-data.js',
   './vendor/jspdf.umd.min.js',
   './styles/design-system.css',

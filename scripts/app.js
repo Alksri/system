@@ -97,6 +97,10 @@
         totalSessions: 0,
         lastDate: null
       },
+      workouts: {
+        sessions: [],
+        prHistory: {}
+      },
       study: {
         messages: [],
         sessions: []
@@ -137,6 +141,10 @@
     if (!raw.exercises.daily || typeof raw.exercises.daily !== 'object') raw.exercises.daily = {};
     if (typeof raw.exercises.totalSessions !== 'number' || !isFinite(raw.exercises.totalSessions)) raw.exercises.totalSessions = 0;
     raw.exercises.totalSessions = Math.max(0, Math.floor(raw.exercises.totalSessions));
+
+    raw.workouts = raw.workouts && typeof raw.workouts === 'object' ? raw.workouts : {};
+    if (!Array.isArray(raw.workouts.sessions)) raw.workouts.sessions = [];
+    if (!raw.workouts.prHistory || typeof raw.workouts.prHistory !== 'object') raw.workouts.prHistory = {};
 
     raw.study = raw.study && typeof raw.study === 'object' ? raw.study : {};
     if (!Array.isArray(raw.study.messages)) raw.study.messages = [];
@@ -429,7 +437,8 @@
       { label: 'Meal Calculator', href: 'nutrition.html', page: 'nutrition' }
     ] },
     { label: 'Exercises', href: 'exercises.html', page: 'exercises' },
-    { label: 'Study', href: 'study.html', page: 'study' }
+    { label: 'Study', href: 'study.html', page: 'study' },
+    { label: 'MONARCH', href: 'monarch.html', page: 'monarch' }
   ];
 
   var BRAND_SVG =
@@ -3213,7 +3222,15 @@
     Store: Store,
     toast: toast,
     framePath: framePath,
+    rankForLevel: rankForLevel,
     derive: function () { return derive(Store.state); },
+    // Returns the number of level-ups applied and the new level.
+    gainXP: function (amount) {
+      if (!Store.state) return { levels: 0, level: 0 };
+      var levels = addExp(Store.state, Math.max(0, Math.floor(amount)));
+      Store.save();
+      return { levels: levels, level: Store.state.level };
+    },
     escapeHtml: escapeHtml,
     fmtDate: fmtDate
   };

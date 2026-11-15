@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>MONARCH — System Level-Up</title>
+  <meta name="description" content="MONARCH: quest your real workout into levels, ranks and rewards. Original Solo-Leveling-style progression for the System Portal account." />
+  <meta name="theme-color" content="#030209" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MONARCH" />
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/monarch.css" />
+  <script src="scripts/config.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script>SystemAuth.requireAuth();</script>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/monarch-icon-512.png" />
+  <link rel="apple-touch-icon" href="assets/monarch-icon-512.png" />
+</head>
+<body class="monarch-body">
+  <div class="monarch-shell" id="monarch-shell">
+
+    <header class="monarch-top">
+      <span class="monarch-brand" aria-label="MONARCH">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2 4 8.5V16l8 6 8-6V8.5L12 2Z" stroke="#c4b5fd" stroke-width="1.3"/>
+          <path d="M12 7v10M8.5 10 12 7l3.5 3" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8.5 13.6 12 16.4l3.5-2.8" stroke="#7dd3fc" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        MONARCH
+      </span>
+      <div class="monarch-top-actions">
+        <span class="monarch-gold" title="Gold"><span aria-hidden="true">◈</span><span id="gold-value">0</span></span>
+        <a class="icon-btn" href="index.html" aria-label="Back to Portal" title="Back to Portal" style="color:#c9b8ff">
+          <svg viewBox="0 0 24 24" fill="none" width="20" height="20"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </header>
+
+    <div class="monarch-screens">
+
+      <!-- ================= DASHBOARD ================= -->
+      <section class="monarch-screen active" id="screen-dashboard" role="region" aria-label="Dashboard">
+        <div class="player-card">
+          <div class="crest-wrap" id="crest-wrap">
+            <span class="crest-orbit"></span>
+            <img class="crest" id="crest-img" src="assets/monarch-crest.png" alt="MONARCH crest" width="116" height="116" />
+          </div>
+          <h1 class="player-name" id="player-name">Hunter</h1>
+          <div class="player-title" id="player-title">E-Rank Hunter</div>
+          <div class="player-rank-row">
+            <div class="player-level"><span>LV&nbsp;</span><b id="player-level">1</b></div>
+            <div class="player-rank" id="player-rank">E</div>
+          </div>
+
+          <div style="margin-top:16px">
+            <div class="bar-label"><span>EXPERIENCE</span><span><span id="xp-now">0</span> / <span id="xp-max">100</span> XP</span></div>
+            <div class="bar bar-xp" id="xp-bar"><div class="bar-fill" id="xp-fill"></div></div>
+            <div class="bar-label"><span>HP</span><span id="hp-value">100</span></div>
+            <div class="bar bar-hp"><div class="bar-fill" id="hp-fill" style="width:100%"></div></div>
+            <div class="bar-label"><span>MP</span><span id="mp-value">50</span></div>
+            <div class="bar bar-mp"><div class="bar-fill" id="mp-fill" style="width:100%"></div></div>
+            <div id="ap-pill" class="streak-pill" style="border-color:rgba(56,189,248,0.4);background:rgba(56,189,248,0.08);color:#7dd3fc;display:none">
+              <span aria-hidden="true">+</span>
+              <span><b id="ap-value">0</b> stat points available</span>
+              <a href="#" data-switch="stats" style="color:#fff">Allocate →</a>
+            </div>
+            <div id="streak-pill" class="streak-pill" title="Workout streak">
+              <span aria-hidden="true">▲</span><span><b id="streak-days">0</b> day streak</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-cell"><div class="k">Workouts</div><div class="v" id="dash-workouts-total">0</div><div class="s">total sessions</div></div>
+          <div class="dash-cell"><div class="k">This week</div><div class="v" id="dash-workouts-week">0</div><div class="s">sessions logged</div></div>
+          <div class="dash-cell"><div class="k">Volume lifted</div><div class="v" id="dash-volume">0</div><div class="s">kg (all-time)</div></div>
+          <div class="dash-cell"><div class="k">Quests done</div><div class="v" id="dash-quests-done">0</div><div class="s"><span id="dash-quests-active">0</span> active</div></div>
+        </div>
+
+        <div class="monarch-section" style="margin-top:14px">
+          <h2>Today's quests</h2>
+          <p class="hint">Finish quests to earn XP, gold and ability points.</p>
+          <div id="dash-quests"></div>
+        </div>
+      </section>
+
+      <!-- ================= WORKOUT ================= -->
+      <section class="monarch-screen" id="screen-workout" role="region" aria-label="Workout">
+        <div class="monarch-section">
+          <h2>Workout log</h2>
+          <p class="hint">Pick an exercise, add sets, tap Finish. XP and gold for every set — plus a bonus for beating your records.</p>
+          <div class="ex-groups" id="ex-groups" role="tablist"></div>
+          <div class="plan-row" id="plan-row">
+            <span class="plan-label">Plans</span>
+            <button class="ex-chip" type="button" data-plan="push">Push</button>
+            <button class="ex-chip" type="button" data-plan="pull">Pull</button>
+            <button class="ex-chip" type="button" data-plan="legs">Legs</button>
+            <button class="ex-chip" type="button" data-plan="full">Full Body</button>
+          </div>
+          <div id="workout-items"></div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn btn-secondary" type="button" id="session-abandon" style="flex:0 0 auto">Abandon</button>
+            <button class="btn" type="button" id="session-finish" style="flex:1">Finish workout</button>
+          </div>
+          <div class="pr-hint" id="pr-hint" style="margin-top:10px">Tap a chip to add the exercise to your session.</div>
+        </div>
+
+        <div class="dash-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:14px">
+          <div class="dash-cell wk-stat"><b id="wk-sessions">0</b><small>Sessions</small></div>
+          <div class="dash-cell wk-stat"><b id="wk-prs">0</b><small>PRs set</small></div>
+          <div class="dash-cell wk-stat"><b id="wk-streak">0</b><small>Day streak</small></div>
+        </div>
+
+        <div class="monarch-section">
+          <h2>Recent workouts</h2>
+          <div id="workout-history"></div>
+        </div>
+      </section>
+
+      <!-- ================= QUESTS ================= -->
+      <section class="monarch-screen" id="screen-quests" role="region" aria-label="Quests">
+        <div class="monarch-section">
+          <h2>Active quests</h2>
+          <p class="hint">Complete them before the timer runs out or the System takes a level.</p>
+          <div id="quests-list"></div>
+        </div>
+        <div class="monarch-section">
+          <h2>Workout streak</h2>
+          <p class="hint">Dots are days with at least one finished workout. Build the chain.</p>
+          <div class="streak-grid" id="streak-grid"></div>
+        </div>
+      </section>
+
+      <!-- ================= STATS ================= -->
+      <section class="monarch-screen" id="screen-stats" role="region" aria-label="Stats">
+        <div class="monarch-section">
+          <h2>Ability points</h2>
+          <p class="hint"><b id="ap-pool" style="color:#7dd3fc">0</b> AP available. Raise your attributes; every point matters.</p>
+          <div id="stat-rows"></div>
+        </div>
+        <div class="dash-grid" style="margin-bottom:14px">
+          <div class="dash-cell"><div class="k">Max HP</div><div class="v" id="derived-hp">100</div><div class="s">vit + level</div></div>
+          <div class="dash-cell"><div class="k">Max MP</div><div class="v" id="derived-mp">50</div><div class="s">int + level</div></div>
+        </div>
+        <div class="monarch-section">
+          <h2>Rank ladder</h2>
+          <p class="hint">Your ascent from E to S.</p>
+          <div class="rank-ladder" id="rank-ladder"></div>
+          <h2 style="margin-top:16px">Maximum title</h2>
+          <p class="hint" id="title-progress"></p>
+        </div>
+      </section>
+
+    </div><!-- /monarch-screens -->
+
+    <nav class="monarch-nav" aria-label="MONARCH sections">
+      <button class="monarch-nav-btn active" type="button" data-screen="dashboard" aria-pressed="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 11 12 4l8 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 10v9h11v-9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Home
+      </button>
+      <button class="monarch-nav-btn" type="button" data-screen="workout" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 11v2M7.5 7.5v9M17 7.5v9M20.5 11v2M3.8 12h16.4" stroke-linecap="round"/></svg>
+        Workout
+      </button>
+      <button class="monarch-nav-btn" type="button" data-screen="quests" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M8 6h13M8 12h13M8 18h13" stroke-linecap="round"/><path d="m3.5 6 .8.9L6 5.4M3.5 12l.8.9L6 11.4M3.5 18l.8.9.6-1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Quests
+      </button>
+      <button class="monarch-nav-btn" type="button" data-screen="stats" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 20h16M7 17v-6M12 17V6M17 17v-9" stroke-linecap="round"/></svg>
+        Stats
+      </button>
+    </nav>
+
+  </div><!-- /monarch-shell -->
+
+  <!-- Level-up overlay -->
+  <div class="levelup-overlay" id="levelup-overlay" role="alertdialog" aria-modal="true" aria-label="Level up">
+    <div class="levelup-rays"></div>
+    <canvas class="levelup-canvas" id="levelup-canvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
+    <div class="levelup-word" id="levelup-word">LEVEL UP</div>
+    <div class="levelup-rank" id="levelup-rank">2</div>
+    <div class="levelup-sub" id="levelup-sub">+3 ability points</div>
+  </div>
+
+  <script src="scripts/app.js"></script>
+  <script>window.addEventListener('pagehide', function () { if (window.SystemPortal && SystemPortal.Store) SystemPortal.Store.save(); });</script>
+  <script src="scripts/monarch.js"></script>
+</body>
+</html>

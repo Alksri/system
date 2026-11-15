@@ -53,6 +53,7 @@ WEB_DIRS = [
     "styles",
     "icons",
     "vendor",
+    "assets",
 ]
 
 

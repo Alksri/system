@@ -127,21 +127,22 @@ async function sendOtpEmail(to, name, code) {
   if (!key || !senderEmail) {
     return { ok: false, error: 'Email delivery is not configured yet. Set BREVO_API_KEY and SENDER_EMAIL in the Netlify project.' };
   }
-  const subject = 'System Portal — ' + code + ' is your verification code';
+  const subject = 'Your System Portal verification code: ' + code;
   const html = `
-  <div style="background:#05060c;padding:32px 16px;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#e9edfb">
-    <div style="max-width:480px;margin:0 auto;background:#0d1020;border:1px solid #232744;border-radius:16px;overflow:hidden">
-      <div style="padding:18px 24px;border-bottom:3px solid #8b5cf6;background:#120a24">
-        <span style="font-size:12px;letter-spacing:3px;color:#a78bfa;text-transform:uppercase">System Portal</span>
+  <div style="background:#ffffff;padding:32px 16px;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#202124">
+    <div style="max-width:480px;margin:0 auto;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden">
+      <div style="padding:20px 24px;background:#0d1020;color:#ffffff">
+        <span style="font-size:15px;font-weight:600;letter-spacing:1px">SYSTEM PORTAL</span><br>
+        <span style="font-size:11px;color:#a78bfa;letter-spacing:2px;text-transform:uppercase">Account verification</span>
       </div>
       <div style="padding:28px 24px">
-        <p style="margin:0 0 14px;font-size:16px">Hunter <b>${escapeHtml(name)}</b>,</p>
-        <p style="margin:0 0 18px;font-size:14px;color:#b9c2dc">Someone (hopefully you) is registering a hunter profile. Your one-time verification code is:</p>
-        <div style="text-align:center;margin:18px 0">
-          <span style="display:inline-block;font-size:38px;letter-spacing:14px;font-weight:800;color:#c4b5fd;background:#160f2e;border:1px solid #3a2c63;padding:14px 18px 14px 28px;border-radius:14px">${code}</span>
+        <p style="margin:0 0 12px;font-size:15px">Hi ${escapeHtml(name)},</p>
+        <p style="margin:0 0 18px;font-size:14px;color:#3c4043">Use this code to finish creating your System Portal account. It expires in 10 minutes.</p>
+        <div style="text-align:center;margin:22px 0">
+          <span style="display:inline-block;font-family:'SFMono-Regular',Consolas,monospace;font-size:34px;letter-spacing:12px;font-weight:700;color:#202124;background:#f1f3f4;border-radius:8px;padding:14px 18px 14px 26px">${code}</span>
         </div>
-        <p style="margin:0 0 10px;font-size:13px;color:#b9c2dc">This code expires in 10 minutes. Never share it with anyone — System Portal will never ask for it.</p>
-        <p style="margin:0;font-size:12px;color:#7a849f">Ignore this email if you did not request it.</p>
+        <p style="margin:0 0 8px;font-size:13px;color:#5f6368">If you were not trying to create a System Portal account, you can safely delete this email.</p>
+        <p style="margin:0;font-size:12px;color:#80868b">This automated message was sent because an email address was used to start an account registration on System Portal.</p>
       </div>
     </div>
   </div>`;
@@ -153,6 +154,11 @@ async function sendOtpEmail(to, name, code) {
       to: [{ email: to, name }],
       subject,
       htmlContent: html,
+      textContent: 'Hi ' + name + ',\n\n' +
+        'Use this code to finish creating your System Portal account: ' + code + '\n' +
+        'The code expires in 10 minutes.\n\n' +
+        'If you were not creating a System Portal account, ignore this email.\n\n' +
+        'System Portal',
     }),
   });
   if (!resp.ok) {

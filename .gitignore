@@ -2,6 +2,10 @@
 node_modules/
 system-portal-netlify.zip
 SystemPortal.apk
+MONARCH.apk
 android/build/
 android/dist/
 android/keystore/
+monarch/build/
+monarch/dist/
+monarch/keystore/
